@@ -5,7 +5,6 @@ import {
     NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDto } from './dto/login.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -15,6 +14,9 @@ import { RegisterDto } from './dto/register.dto';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Response } from 'express';
+import { LoginResponseDto } from './dto/loginReponse.dto';
+import { UserEntity } from 'src/user/dto/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -26,42 +28,58 @@ export class AuthService {
         private mailService: MailerService,
     ) {}
 
-    async register(registerDto: RegisterDto) {
-        const userExists = await this.prisma.user.findFirst({
-            where: {
-                OR: [
-                    { login: registerDto.login },
-                    { email: registerDto.email },
-                ],
-            },
-        });
-
-        if (userExists) {
+    async register(registerDto: RegisterDto): Promise<void> {
+        if (
+            !(await this.userService.isUserUnique(
+                registerDto.login,
+                registerDto.email,
+            ))
+        ) {
             throw new BadRequestException('User already exists');
         }
 
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
 
-        const newUser = await this.userService.create({
-            ...registerDto,
-            password: hashedPassword,
+        const newUser = await this.prisma.user.create({
+            data: {
+                ...registerDto,
+                avatar: this.configService.get<string>('DEFAULT_AVATAR_PATH'),
+                password: hashedPassword,
+            },
         });
 
         await this.sendEmailVerification(newUser.email);
     }
 
-    async login(user: User) {
-        const tokens = await this.generateTokens(user.id, user.login);
-        await this.updateRefreshToken(user.id, tokens.refreshToken);
+    async login(user: User, res: Response): Promise<LoginResponseDto> {
+        const { accessToken, refreshToken } = await this.generateTokens(
+            user.id,
+            user.login,
+        );
+        await this.updateRefreshToken(user.id, refreshToken);
 
-        return tokens;
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+        });
+
+        return { accessToken };
     }
 
-    async logout(userId: number) {
-        return await this.userService.update(userId, { refreshToken: null });
+    async logout(userId: number, res: Response): Promise<void> {
+        await this.prisma.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                refreshToken: null,
+            },
+        });
+
+        res.clearCookie('refresh_token');
     }
 
-    async sendPasswordReset(email: string) {
+    async sendPasswordReset(email: string): Promise<void> {
         const users = await this.userService.findByTemplate({ email });
 
         if (users.length === 0) {
@@ -93,7 +111,7 @@ export class AuthService {
         });
     }
 
-    async resetPassword(token: string, password: string) {
+    async resetPassword(token: string, password: string): Promise<void> {
         const otp = await this.prisma.otp.findFirst({
             where: {
                 token,
@@ -110,8 +128,13 @@ export class AuthService {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        await this.userService.update(otp.userId, {
-            password: hashedPassword,
+        await this.prisma.user.update({
+            where: {
+                id: otp.userId,
+            },
+            data: {
+                password: hashedPassword,
+            },
         });
 
         await this.prisma.otp.delete({
@@ -121,7 +144,7 @@ export class AuthService {
         });
     }
 
-    async sendEmailVerification(email: string) {
+    async sendEmailVerification(email: string): Promise<void> {
         const users = await this.userService.findByTemplate({ email });
 
         if (users.length === 0) {
@@ -157,7 +180,7 @@ export class AuthService {
         });
     }
 
-    async verifyEmail(token: string) {
+    async verifyEmail(token: string): Promise<void> {
         const otp = await this.prisma.otp.findFirst({
             where: {
                 token,
@@ -172,8 +195,13 @@ export class AuthService {
             throw new BadRequestException('Invalid OTP');
         }
 
-        await this.userService.update(otp.userId, {
-            emailVerified: true,
+        await this.prisma.user.update({
+            where: {
+                id: otp.userId,
+            },
+            data: {
+                emailVerified: true,
+            },
         });
 
         await this.prisma.otp.delete({
@@ -183,15 +211,23 @@ export class AuthService {
         });
     }
 
-    async refreshToken(userId: number, refreshToken: string) {
-        const user = await this.userService.findOne(userId);
+    async refreshToken(
+        userId: number,
+        oldRefreshToken: string,
+        res: Response,
+    ): Promise<LoginResponseDto> {
+        const user = await this.prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
 
         if (!user || !user.refreshToken) {
             throw new ForbiddenException('Access Denied');
         }
 
         const refreshTokenMatches = await bcrypt.compare(
-            refreshToken,
+            oldRefreshToken,
             user.refreshToken,
         );
 
@@ -199,17 +235,30 @@ export class AuthService {
             throw new ForbiddenException('Access Denied');
         }
 
-        const tokens = await this.generateTokens(user.id, user.login);
+        const { accessToken, refreshToken } = await this.generateTokens(
+            user.id,
+            user.login,
+        );
 
-        await this.updateRefreshToken(user.id, tokens.refreshToken);
+        await this.updateRefreshToken(user.id, refreshToken);
 
-        return tokens;
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            sameSite: 'strict',
+        });
+
+        return { accessToken };
     }
 
     async updateRefreshToken(userId: number, refreshToken: string) {
         const hashedRefreshedToken = await bcrypt.hash(refreshToken, 10);
-        await this.userService.update(userId, {
-            refreshToken: hashedRefreshedToken,
+        await this.prisma.user.update({
+            where: {
+                id: userId,
+            },
+            data: {
+                refreshToken: hashedRefreshedToken,
+            },
         });
     }
 

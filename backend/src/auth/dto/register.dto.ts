@@ -7,9 +7,6 @@ export class RegisterDto {
     @IsNotEmpty()
     password: string;
 
-    // @IsNotEmpty()
-    // passwordConfirmation: string;
-
     @IsNotEmpty()
     fullName: string;
 

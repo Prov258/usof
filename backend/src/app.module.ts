@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { MailerModule, MailerOptions } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as path from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
     imports: [
@@ -16,6 +17,12 @@ import * as path from 'path';
         UserModule,
         ConfigModule.forRoot({
             isGlobal: true,
+        }),
+        ServeStaticModule.forRoot({
+            rootPath: path.join(__dirname, '..', 'public'),
+            serveStaticOptions: {
+                index: false,
+            },
         }),
         JwtModule.register({
             global: true,
