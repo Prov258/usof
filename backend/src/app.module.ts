@@ -10,6 +10,7 @@ import { MailerModule, MailerOptions } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as path from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { PostModule } from './post/post.module';
 
 @Module({
     imports: [
@@ -54,6 +55,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
             inject: [ConfigService],
         }),
         AuthModule,
+        PostModule,
     ],
     providers: [
         {
