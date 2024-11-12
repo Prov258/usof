@@ -1,31 +1,32 @@
 import { faker } from '@faker-js/faker';
+
 import Seeder from './Seeder';
-import { PrismaClient, Status, User } from '@prisma/client';
+import { Post, User } from '@prisma/client';
 
-const prisma = new PrismaClient();
-
-class PostSeed extends Seeder {
+class CommentSeed extends Seeder {
     private users: User[];
+    private posts: Post[];
 
-    constructor(users: User[], count: number = 10) {
+    constructor(users: User[], posts: Post[], count: number = 10) {
         super(count);
-        this.count = count;
         this.users = users;
+        this.posts = posts;
+        this.count = count;
         this.createData();
     }
 
     createData() {
         for (let i = 0; i < this.count; i++) {
             const user = faker.helpers.arrayElement(this.users);
+            const post = faker.helpers.arrayElement(this.posts);
 
             this._data.push({
-                title: faker.lorem.sentence(),
-                status: faker.helpers.enumValue(Status),
                 content: faker.lorem.sentence(),
                 authorId: user.id,
+                postId: post.id,
             });
         }
     }
 }
 
-export default PostSeed;
+export default CommentSeed;

@@ -62,15 +62,15 @@ enum Status {
 }
 
 model Post {
-  id         Int        @id @default(autoincrement())
-  author     User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId   Int        @map("author_id")
-  title      String     @db.VarChar(255)
-  status     Status     @default(ACTIVE)
+  id         Int            @id @default(autoincrement())
+  author     User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId   Int            @map("author_id")
+  title      String         @db.VarChar(255)
+  status     Status         @default(ACTIVE)
   content    String
-  createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @updatedAt @map("updated_at")
-  categories Category[] @relation("category_post")
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+  categories CategoryPost[]
   comments   Comment[]
   likes      Like[]
 
@@ -78,14 +78,25 @@ model Post {
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
-  title       String   @unique @db.VarChar(255)
+  id          Int            @id @default(autoincrement())
+  title       String         @unique @db.VarChar(255)
   description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  posts       Post[]   @relation("category_post")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  posts       CategoryPost[]
 
   @@map("categories")
+}
+
+model CategoryPost {
+  id         Int      @id @default(autoincrement())
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     Int      @map("post_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId Int      @map("category_id")
+
+  @@unique([postId, categoryId])
+  @@map("category_post")
 }
 
 model Comment {
