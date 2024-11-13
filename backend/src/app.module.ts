@@ -11,6 +11,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import * as path from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { PostModule } from './post/post.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
     imports: [
@@ -56,6 +57,7 @@ import { PostModule } from './post/post.module';
         }),
         AuthModule,
         PostModule,
+        CommentModule,
     ],
     providers: [
         {
