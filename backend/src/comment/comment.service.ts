@@ -1,26 +1,170 @@
-import { Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    ForbiddenException,
+    Injectable,
+} from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { Comment, Like, LikeType, Role, User } from '@prisma/client';
+import { CreateLikeDto } from 'src/post/dto/create-like.dto';
 
 @Injectable()
 export class CommentService {
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
-  }
+    constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return `This action returns all comment`;
-  }
+    async findOne(id: number) {
+        return await this.prisma.comment.findUnique({
+            where: {
+                id,
+            },
+        });
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
-  }
+    async getCommentLikes(commentId: number): Promise<Like[]> {
+        const comment = await this.prisma.comment.findUnique({
+            where: {
+                id: commentId,
+            },
+        });
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
-  }
+        if (!comment) {
+            throw new BadRequestException("Comment doesn't exist");
+        }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
-  }
+        return await this.prisma.like.findMany({
+            where: {
+                comment: {
+                    id: commentId,
+                },
+            },
+        });
+    }
+
+    async createCommentLike(
+        commentId: number,
+        user: User,
+        createLikeDto: CreateLikeDto,
+    ): Promise<Like> {
+        const comment = await this.findOne(commentId);
+
+        if (!comment) {
+            throw new BadRequestException("Comment doesn't exist");
+        }
+
+        const like = await this.prisma.like.findFirst({
+            where: {
+                authorId: user.id,
+                commentId,
+            },
+        });
+
+        if (like) {
+            throw new BadRequestException("You've already liked this post");
+        }
+
+        const increment = createLikeDto.type === LikeType.LIKE ? 1 : -1;
+        const [newLike] = await this.prisma.$transaction([
+            this.prisma.like.create({
+                data: {
+                    authorId: user.id,
+                    commentId,
+                    type: createLikeDto.type,
+                },
+            }),
+            this.prisma.user.update({
+                where: {
+                    id: user.id,
+                },
+                data: {
+                    rating: {
+                        increment,
+                    },
+                },
+            }),
+        ]);
+
+        return newLike;
+    }
+
+    async update(
+        commentId: number,
+        user: User,
+        updateCommentDto: UpdateCommentDto,
+    ): Promise<Comment> {
+        const comment = await this.findOne(commentId);
+
+        if (!comment) {
+            throw new BadRequestException("Comment doesn't exist");
+        }
+
+        if (comment.authorId !== user.id) {
+            throw new ForbiddenException('Forbidden to update comment');
+        }
+
+        return await this.prisma.comment.update({
+            where: {
+                id: commentId,
+            },
+            data: updateCommentDto,
+        });
+    }
+
+    async remove(commentId: number, user: User): Promise<Comment> {
+        const comment = await this.findOne(commentId);
+
+        if (!comment) {
+            throw new BadRequestException("Comment doesn't exist");
+        }
+
+        if (comment.authorId !== user.id && user.role !== Role.ADMIN) {
+            throw new ForbiddenException('Forbidden to delete comment');
+        }
+
+        return await this.prisma.comment.delete({
+            where: {
+                id: commentId,
+            },
+        });
+    }
+
+    async removeCommentLike(commentId: number, user: User): Promise<Like> {
+        const comment = await this.findOne(commentId);
+
+        if (!comment) {
+            throw new BadRequestException("Comment doesn't exist");
+        }
+
+        const like = await this.prisma.like.findFirst({
+            where: {
+                authorId: user.id,
+                commentId,
+            },
+        });
+
+        if (!like) {
+            throw new BadRequestException('Like not found');
+        }
+
+        const increment = like.type === LikeType.LIKE ? -1 : 1;
+        const [deletedLike] = await this.prisma.$transaction([
+            this.prisma.like.delete({
+                where: {
+                    id: like.id,
+                },
+            }),
+            this.prisma.user.update({
+                where: {
+                    id: user.id,
+                },
+                data: {
+                    rating: {
+                        increment,
+                    },
+                },
+            }),
+        ]);
+
+        return deletedLike;
+    }
 }

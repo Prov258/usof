@@ -12,6 +12,7 @@ import * as path from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
     imports: [
@@ -58,6 +59,7 @@ import { CommentModule } from './comment/comment.module';
         AuthModule,
         PostModule,
         CommentModule,
+        CategoryModule,
     ],
     providers: [
         {

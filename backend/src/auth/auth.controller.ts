@@ -40,12 +40,12 @@ export class AuthController {
         return this.authService.login(req.user, res);
     }
 
-    @UseGuards(JwtGuard)
     @Get('logout')
     logout(@Request() req, @Response() res): Promise<void> {
         return this.authService.logout(req.user.id, res);
     }
 
+    @Public()
     @UseGuards(JwtRefreshGuard)
     @Get('refresh')
     refresh(

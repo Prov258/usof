@@ -1,34 +1,61 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    Request,
+} from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { CreateLikeDto } from 'src/post/dto/create-like.dto';
 
-@Controller('comment')
+@Controller('comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+    constructor(private readonly commentService: CommentService) {}
 
-  @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentService.create(createCommentDto);
-  }
+    @Get(':id')
+    findOne(@Param('id') id: number) {
+        return this.commentService.findOne(id);
+    }
 
-  @Get()
-  findAll() {
-    return this.commentService.findAll();
-  }
+    @Get(':id/like')
+    getCommentLikes(@Param('id') id: number) {
+        return this.commentService.getCommentLikes(id);
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentService.findOne(+id);
-  }
+    @Post(':id/like')
+    createCommentLike(
+        @Request() req,
+        @Param('id') id: number,
+        @Body() createLikeDto: CreateLikeDto,
+    ) {
+        return this.commentService.createCommentLike(
+            id,
+            req.user,
+            createLikeDto,
+        );
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentService.update(+id, updateCommentDto);
-  }
+    @Patch(':id')
+    update(
+        @Request() req,
+        @Param('id') id: number,
+        @Body() updateCommentDto: UpdateCommentDto,
+    ) {
+        return this.commentService.update(id, req.user, updateCommentDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentService.remove(+id);
-  }
+    @Delete(':id')
+    remove(@Request() req, @Param('id') id: number) {
+        return this.commentService.remove(id, req.user);
+    }
+
+    @Delete(':id/like')
+    removeCommentLike(@Request() req, @Param('id') id: number) {
+        return this.commentService.removeCommentLike(id, req.user);
+    }
 }
