@@ -16,14 +16,26 @@ import { Public } from 'src/decorators/public.decorator';
 import { PaginationOptionsDto } from './dto/pagination-options.dto';
 import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { SortingOptionsDto } from './dto/sorting-options.dto';
+import { FilteringOptionsDto } from './dto/filtering-options.dto';
 
 @Controller('posts')
 export class PostController {
     constructor(private readonly postService: PostService) {}
 
     @Get()
-    findAll(@Request() req, @Query() paginationOptions: PaginationOptionsDto) {
-        return this.postService.findAll(paginationOptions, req.user);
+    findAll(
+        @Request() req,
+        @Query() sortingOptions: SortingOptionsDto,
+        @Query() filteringOptions: FilteringOptionsDto,
+        @Query() paginationOptions: PaginationOptionsDto,
+    ) {
+        return this.postService.findAll(
+            paginationOptions,
+            sortingOptions,
+            filteringOptions,
+            req.user,
+        );
     }
 
     @Public()

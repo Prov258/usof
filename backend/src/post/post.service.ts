@@ -22,6 +22,8 @@ import {
 } from '@prisma/client';
 import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { SortingOptionsDto } from './dto/sorting-options.dto';
+import { FilteringOptionsDto } from './dto/filtering-options.dto';
 
 @Injectable()
 export class PostService {
@@ -61,10 +63,33 @@ export class PostService {
 
     async findAll(
         { page, limit }: PaginationOptionsDto,
+        { order, sort }: SortingOptionsDto,
+        { status, categories, startDate, endDate }: FilteringOptionsDto,
         user: User,
     ): Promise<Paginated<Post>> {
         const where: Prisma.PostWhereInput = {
-            status: user.role === Role.ADMIN ? null : Status.ACTIVE,
+            AND: [
+                {
+                    categories: {
+                        some: {
+                            category: {
+                                title: {
+                                    in: categories,
+                                },
+                            },
+                        },
+                    },
+                },
+                {
+                    createdAt: {
+                        gte: startDate,
+                        lte: endDate,
+                    },
+                },
+                {
+                    status: user.role === Role.ADMIN ? status : Status.ACTIVE,
+                },
+            ],
         };
 
         const [posts, count] = await this.prisma.$transaction([
@@ -72,6 +97,12 @@ export class PostService {
                 where,
                 take: limit,
                 skip: limit * (page - 1),
+                orderBy: {
+                    [sort]: order,
+                },
+                include: {
+                    categories: true,
+                },
             }),
             this.prisma.post.count({ where }),
         ]);
@@ -199,13 +230,20 @@ export class PostService {
                     type: createLikeDto.type,
                 },
             }),
-            this.prisma.user.update({
+            this.prisma.post.update({
                 where: {
-                    id: user.id,
+                    id: postId,
                 },
                 data: {
                     rating: {
                         increment,
+                    },
+                    author: {
+                        update: {
+                            rating: {
+                                increment,
+                            },
+                        },
                     },
                 },
             }),
@@ -305,13 +343,20 @@ export class PostService {
                     id: like.id,
                 },
             }),
-            this.prisma.user.update({
+            this.prisma.post.update({
                 where: {
-                    id: user.id,
+                    id: postId,
                 },
                 data: {
                     rating: {
                         increment,
+                    },
+                    author: {
+                        update: {
+                            rating: {
+                                increment,
+                            },
+                        },
                     },
                 },
             }),

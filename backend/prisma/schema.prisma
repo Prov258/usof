@@ -68,6 +68,7 @@ model Post {
   title      String         @db.VarChar(255)
   status     Status         @default(ACTIVE)
   content    String
+  rating     Int            @default(0)
   createdAt  DateTime       @default(now()) @map("created_at")
   updatedAt  DateTime       @updatedAt @map("updated_at")
   categories CategoryPost[]
