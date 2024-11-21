@@ -18,6 +18,7 @@ import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { SortingOptionsDto } from './dto/sorting-options.dto';
 import { FilteringOptionsDto } from './dto/filtering-options.dto';
+import { Favorite } from '@prisma/client';
 
 @Controller('posts')
 export class PostController {
@@ -88,6 +89,16 @@ export class PostController {
         @Body() createLikeDto: CreateLikeDto,
     ) {
         return this.postService.createPostLike(id, req.user, createLikeDto);
+    }
+
+    @Post(':id/favorite')
+    createPostFavorite(@Request() req, @Param('id') id: number) {
+        return this.postService.createPostFavorite(id, req.user);
+    }
+
+    @Delete(':id/favorite')
+    removePostFavorite(@Request() req, @Param('id') id: number) {
+        return this.postService.removePostFavorite(id, req.user);
     }
 
     @Patch(':id')

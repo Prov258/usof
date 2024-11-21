@@ -12,6 +12,7 @@ import { Paginated } from './dto/paginated';
 import {
     Category,
     Comment,
+    Favorite,
     Like,
     LikeType,
     Post,
@@ -64,7 +65,13 @@ export class PostService {
     async findAll(
         { page, limit }: PaginationOptionsDto,
         { order, sort }: SortingOptionsDto,
-        { status, categories, startDate, endDate }: FilteringOptionsDto,
+        {
+            status,
+            categories,
+            startDate,
+            endDate,
+            favorite,
+        }: FilteringOptionsDto,
         user: User,
     ): Promise<Paginated<Post>> {
         const where: Prisma.PostWhereInput = {
@@ -89,6 +96,17 @@ export class PostService {
                 {
                     status: user.role === Role.ADMIN ? status : Status.ACTIVE,
                 },
+                ...(favorite
+                    ? [
+                          {
+                              favorites: {
+                                  some: {
+                                      userId: user.id,
+                                  },
+                              },
+                          },
+                      ]
+                    : []),
             ],
         };
 
@@ -101,7 +119,16 @@ export class PostService {
                     [sort]: order,
                 },
                 include: {
-                    categories: true,
+                    categories: {
+                        select: {
+                            category: {
+                                select: {
+                                    id: true,
+                                    title: true,
+                                },
+                            },
+                        },
+                    },
                 },
             }),
             this.prisma.post.count({ where }),
@@ -252,6 +279,34 @@ export class PostService {
         return newLike;
     }
 
+    async createPostFavorite(postId: number, user: User): Promise<Favorite> {
+        const post = await this.findOne(postId);
+
+        if (!post || post.status === Status.INACTIVE) {
+            throw new ForbiddenException('Post is missing or inactive');
+        }
+
+        const favorite = await this.prisma.favorite.findFirst({
+            where: {
+                userId: user.id,
+                postId,
+            },
+        });
+
+        if (favorite) {
+            throw new BadRequestException(
+                "You've already added this post to favorite",
+            );
+        }
+
+        return await this.prisma.favorite.create({
+            data: {
+                userId: user.id,
+                postId,
+            },
+        });
+    }
+
     async update(
         postId: number,
         user: User,
@@ -314,6 +369,31 @@ export class PostService {
         return await this.prisma.post.delete({
             where: {
                 id: postId,
+            },
+        });
+    }
+
+    async removePostFavorite(postId: number, user: User): Promise<Favorite> {
+        const post = await this.findOne(postId);
+
+        if (!post || post.status === Status.INACTIVE) {
+            throw new ForbiddenException('Post is missing or inactive');
+        }
+
+        const favorite = await this.prisma.favorite.findFirst({
+            where: {
+                userId: user.id,
+                postId,
+            },
+        });
+
+        if (!favorite) {
+            throw new BadRequestException("Post isn't in your favorites");
+        }
+
+        return await this.prisma.favorite.delete({
+            where: {
+                id: favorite.id,
             },
         });
     }

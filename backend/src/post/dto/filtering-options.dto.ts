@@ -1,6 +1,7 @@
 import { Status } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
+    IsBoolean,
     IsDate,
     IsEnum,
     IsNotEmpty,
@@ -28,4 +29,9 @@ export class FilteringOptionsDto {
     @IsOptional()
     @IsEnum(Status)
     status?: Status;
+
+    @IsOptional()
+    @IsBoolean()
+    @Type(() => Boolean)
+    favorite?: boolean = false;
 }

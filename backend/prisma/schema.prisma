@@ -19,19 +19,20 @@ enum Role {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  login         String    @unique @db.VarChar(255)
-  password      String    @db.VarChar(255)
-  fullName      String    @map("full_name") @db.VarChar(255)
-  email         String    @unique
-  emailVerified Boolean   @default(false) @map("email_verified")
+  id            Int        @id @default(autoincrement())
+  login         String     @unique @db.VarChar(255)
+  password      String     @db.VarChar(255)
+  fullName      String     @map("full_name") @db.VarChar(255)
+  email         String     @unique
+  emailVerified Boolean    @default(false) @map("email_verified")
   avatar        String
-  rating        Int       @default(0)
-  role          Role      @default(USER)
+  rating        Int        @default(0)
+  role          Role       @default(USER)
   refreshToken  String?
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
   posts         Post[]
+  favorites     Favorite[]
   comments      Comment[]
   likes         Like[]
   otps          Otp[]
@@ -72,10 +73,22 @@ model Post {
   createdAt  DateTime       @default(now()) @map("created_at")
   updatedAt  DateTime       @updatedAt @map("updated_at")
   categories CategoryPost[]
+  favorites  Favorite[]
   comments   Comment[]
   likes      Like[]
 
   @@map("posts")
+}
+
+model Favorite {
+  id     Int  @id @default(autoincrement())
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @map("author_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId Int  @map("post_id")
+
+  @@unique([userId, postId])
+  @@map("favorites")
 }
 
 model Category {
