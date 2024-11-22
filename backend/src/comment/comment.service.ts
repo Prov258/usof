@@ -2,6 +2,7 @@ import {
     BadRequestException,
     ForbiddenException,
     Injectable,
+    NotFoundException,
 } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -29,7 +30,7 @@ export class CommentService {
         });
 
         if (!comment) {
-            throw new BadRequestException("Comment doesn't exist");
+            throw new NotFoundException("Comment doesn't exist");
         }
 
         return await this.prisma.like.findMany({
@@ -49,7 +50,7 @@ export class CommentService {
         const comment = await this.findOne(commentId);
 
         if (!comment) {
-            throw new BadRequestException("Comment doesn't exist");
+            throw new NotFoundException("Comment doesn't exist");
         }
 
         const like = await this.prisma.like.findFirst({
@@ -95,7 +96,7 @@ export class CommentService {
         const comment = await this.findOne(commentId);
 
         if (!comment) {
-            throw new BadRequestException("Comment doesn't exist");
+            throw new NotFoundException("Comment doesn't exist");
         }
 
         if (comment.authorId !== user.id) {
@@ -114,7 +115,7 @@ export class CommentService {
         const comment = await this.findOne(commentId);
 
         if (!comment) {
-            throw new BadRequestException("Comment doesn't exist");
+            throw new NotFoundException("Comment doesn't exist");
         }
 
         if (comment.authorId !== user.id && user.role !== Role.ADMIN) {
@@ -132,7 +133,7 @@ export class CommentService {
         const comment = await this.findOne(commentId);
 
         if (!comment) {
-            throw new BadRequestException("Comment doesn't exist");
+            throw new NotFoundException("Comment doesn't exist");
         }
 
         const like = await this.prisma.like.findFirst({
@@ -143,7 +144,7 @@ export class CommentService {
         });
 
         if (!like) {
-            throw new BadRequestException('Like not found');
+            throw new NotFoundException('Like not found');
         }
 
         const increment = like.type === LikeType.LIKE ? -1 : 1;

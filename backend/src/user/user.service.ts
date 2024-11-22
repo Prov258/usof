@@ -14,6 +14,8 @@ import { plainToInstance } from 'class-transformer';
 import { UserEntity } from './dto/entities/user.entity';
 import fs from 'fs/promises';
 import path from 'path';
+import { PaginationOptionsDto } from 'src/post/dto/pagination-options.dto';
+import { Paginated } from 'src/post/dto/paginated';
 
 @Injectable()
 export class UserService {
@@ -42,10 +44,31 @@ export class UserService {
         return plainToInstance(UserEntity, newUser);
     }
 
-    async findAll(): Promise<UserEntity[]> {
-        const users = await this.prisma.user.findMany();
+    async findAll({
+        page,
+        limit,
+    }: PaginationOptionsDto): Promise<Paginated<UserEntity>> {
+        const [users, count] = await this.prisma.$transaction([
+            this.prisma.user.findMany({
+                take: limit,
+                skip: limit * (page - 1),
+            }),
+            this.prisma.category.count(),
+        ]);
 
-        return plainToInstance(UserEntity, users);
+        const pageCount = Math.ceil(count / limit);
+
+        return {
+            data: plainToInstance(UserEntity, users),
+            meta: {
+                page,
+                limit,
+                itemCount: count,
+                pageCount,
+                prev: page > 1 ? page - 1 : null,
+                next: page < pageCount ? page + 1 : null,
+            },
+        };
     }
 
     async findOne(id: number): Promise<UserEntity> {
@@ -106,7 +129,7 @@ export class UserService {
         avatar: Express.Multer.File,
     ): Promise<UserEntity> {
         if (!avatar) {
-            throw new BadRequestException('Invalid image');
+            throw new BadRequestException('Invalid file');
         }
 
         const defaultAvatarPath = this.configService.get<string>(
@@ -126,9 +149,7 @@ export class UserService {
                     ),
                 );
             } catch {
-                throw new InternalServerErrorException(
-                    'Failed to delete image',
-                );
+                throw new InternalServerErrorException('Failed to delete file');
             }
         }
 

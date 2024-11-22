@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { LikeType } from '@prisma/client';
 
-export class CommentEntity {
+export class LikeEntity {
     @ApiProperty({
         example: 1,
         type: Number,
@@ -20,20 +21,21 @@ export class CommentEntity {
     postId: number;
 
     @ApiProperty({
-        example: 'You should use margin',
-        type: String,
+        example: 4,
+        type: Number,
     })
-    content: string;
+    commentId: number;
+
+    @ApiProperty({
+        example: 'LIKE',
+        type: String,
+        enum: LikeType,
+    })
+    type: LikeType;
 
     @ApiProperty({
         example: '2024-11-21 16:49:11.733',
         type: String,
     })
     createdAt: Date;
-
-    @ApiProperty({
-        example: '2024-11-21 16:49:11.733',
-        type: String,
-    })
-    updatedAt: Date;
 }

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PaginationOptionsDto } from 'src/post/dto/pagination-options.dto';
@@ -90,7 +94,7 @@ export class CategoryService {
 
         if (category) {
             throw new BadRequestException(
-                'Category with such title already exist',
+                'Category with such title already exists',
             );
         }
 
@@ -107,7 +111,7 @@ export class CategoryService {
         });
 
         if (!category) {
-            throw new BadRequestException("Category doesn't exist");
+            throw new NotFoundException("Category doesn't exist");
         }
 
         if (
@@ -122,7 +126,7 @@ export class CategoryService {
 
             if (categoryByTitle) {
                 throw new BadRequestException(
-                    'Category with such title already exist',
+                    'Category with such title already exists',
                 );
             }
         }

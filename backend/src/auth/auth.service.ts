@@ -83,7 +83,7 @@ export class AuthService {
         const users = await this.userService.findByTemplate({ email });
 
         if (users.length === 0) {
-            throw new NotFoundException("User doesn't exist");
+            throw new BadRequestException("User doesn't exist");
         }
 
         const user = users[0];
@@ -148,7 +148,7 @@ export class AuthService {
         const users = await this.userService.findByTemplate({ email });
 
         if (users.length === 0) {
-            throw new NotFoundException("User doesn't exist");
+            throw new BadRequestException("User doesn't exist");
         }
 
         const user = users[0];
@@ -223,7 +223,7 @@ export class AuthService {
         });
 
         if (!user || !user.refreshToken) {
-            throw new ForbiddenException('Access Denied');
+            throw new BadRequestException("User doesn't exist");
         }
 
         const refreshTokenMatches = await bcrypt.compare(
@@ -232,7 +232,7 @@ export class AuthService {
         );
 
         if (!refreshTokenMatches) {
-            throw new ForbiddenException('Access Denied');
+            throw new UnauthorizedException('Invalid refresh token');
         }
 
         const { accessToken, refreshToken } = await this.generateTokens(
