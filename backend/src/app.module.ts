@@ -13,6 +13,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { PostModule } from './post/post.module';
 import { CommentModule } from './comment/comment.module';
 import { CategoryModule } from './category/category.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
     imports: [
@@ -60,6 +61,7 @@ import { CategoryModule } from './category/category.module';
         PostModule,
         CommentModule,
         CategoryModule,
+        AdminModule.forRootAsync(),
     ],
     providers: [
         {

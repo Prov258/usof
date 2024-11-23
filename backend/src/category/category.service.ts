@@ -147,7 +147,7 @@ export class CategoryService {
         });
 
         if (!category) {
-            throw new BadRequestException("Category doesn't exist");
+            throw new NotFoundException("Category doesn't exist");
         }
 
         return await this.prisma.category.delete({
