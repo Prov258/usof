@@ -89,7 +89,7 @@ After starting the server you can visit admin panel at `http://localhost:3000/ad
 The database schema is managed using Prisma. Below is a visual repesentation of the scheme:
 
 <p align="center">
-  <img src="prisma/db.png"/>
+  <img src="backend/prisma/db.png"/>
 </p>
 
 ## 🧾 License
