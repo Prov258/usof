@@ -42,17 +42,23 @@ Ensure you have the following installed:
 ### ⚙️ Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/Prov258/usof.git
-   ```
+   
+    ```bash
+    git clone https://github.com/Prov258/usof.git
+    ```
+
 2. Go to the project directory:
+    
     ```bash
     cd usof/backend
     ```
+
 3. Install dependencies:
+    
     ```bash
     npm install
     ```
+
 4. Create a `.env` file based on `.env.example` and put your configuration values
 
 ### 🗂 Database Setup
@@ -61,16 +67,20 @@ Ensure you have the following installed:
     - Create a PostgreSQL database
     - Set up the environment variables in a `.env` file
 2. Run the database migrations:
+    
     ```bash
     npx prisma migrate dev
     ```
+
 3. Seed the database if needed:
+    
     ```bash
     npx prisma db seed
     ```
 
 ### 🚀 Executing program
 To run the application use the following command:
+
 ```bash
 npm run start
 ```
@@ -86,7 +96,7 @@ After starting the server you can visit admin panel at `http://localhost:3000/ad
 
 ## 📝 Database Schema
 
-The database schema is managed using Prisma. Below is a visual repesentation of the scheme:
+The database schema is managed using Prisma. Below is a visual repesentation of the schema:
 
 <p align="center">
   <img src="backend/prisma/db.png"/>
