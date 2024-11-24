@@ -1,9 +1,10 @@
-import { Comment, Post, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import PostSeed from './postSeed';
 import UserSeed from './userSeed';
 import CommentSeed from './commentSeed';
 import CategorySeed from './categorySeed';
 import LikeSeed from './likeSeed';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -49,6 +50,17 @@ async function main() {
     await prisma.like.createMany({
         data: likeSeed.data,
     });
+
+    await prisma.user.create({
+        data: {
+            login: 'admin',
+            fullName: 'admin',
+            email: 'admin@test.com',
+            password: await bcrypt.hash('password', 10),
+            role: 'ADMIN',
+            emailVerified: true
+        }
+    })
 }
 
 main()

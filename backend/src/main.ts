@@ -22,7 +22,9 @@ async function bootstrap() {
 
     const config = new DocumentBuilder()
         .setTitle('Usof API')
-        .setDescription('To be made up')
+        .setDescription(
+            'usof is a backend Q&A application. It provides an API for user authentication, posting, commenting and likes.'
+        )
         .setVersion('1.0')
         .setLicense('MIT', 'https://opensource.org/licenses/MIT')
         .addServer(process.env.APP_URL, 'Local development server')

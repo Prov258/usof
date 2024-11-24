@@ -14,6 +14,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PaginationOptionsDto } from 'src/post/dto/pagination-options.dto';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiNotFoundResponse,
@@ -25,6 +26,7 @@ import { ApiPaginatedResponse } from 'src/post/dto/api-paginated-response';
 import { CategoryEntity } from './entities/category.entity';
 import { PostEntity } from 'src/post/entities/post.entity';
 
+@ApiBearerAuth()
 @Controller('categories')
 export class CategoryController {
     constructor(private readonly categoryService: CategoryService) {}

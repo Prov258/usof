@@ -21,6 +21,7 @@ import { FilteringOptionsDto } from './dto/filtering-options.dto';
 import { Favorite } from '@prisma/client';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiForbiddenResponse,
@@ -40,6 +41,7 @@ import { FavoriteEntity } from './entities/favorite.entity';
 export class PostController {
     constructor(private readonly postService: PostService) {}
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Get all posts' })
     @ApiPaginatedResponse(PostEntity, 'Paginated list of posts')
     @Get()
@@ -84,6 +86,7 @@ export class PostController {
         return this.postService.findComments(id, paginationOptions);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Create comment for post' })
     @ApiParam({
         name: 'id',
@@ -105,6 +108,7 @@ export class PostController {
         );
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Get all categories for post' })
     @ApiParam({
         name: 'id',
@@ -116,6 +120,7 @@ export class PostController {
         return this.postService.getPostCategories(id);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Get all likes for post' })
     @ApiParam({
         name: 'id',
@@ -127,6 +132,7 @@ export class PostController {
         return this.postService.getPostLikes(id);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Create post' })
     @ApiBody({ type: CreatePostDto })
     @ApiCreatedResponse({ type: PostEntity })
@@ -136,6 +142,7 @@ export class PostController {
         return this.postService.create(req.user, createPostDto);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Like post' })
     @ApiParam({
         name: 'id',
@@ -154,6 +161,7 @@ export class PostController {
         return this.postService.createPostLike(id, req.user, createLikeDto);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Add post to favorite' })
     @ApiParam({
         name: 'id',
@@ -169,6 +177,7 @@ export class PostController {
         return this.postService.createPostFavorite(id, req.user);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Remove post from favorite' })
     @ApiParam({
         name: 'id',
@@ -184,6 +193,7 @@ export class PostController {
         return this.postService.removePostFavorite(id, req.user);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Update post' })
     @ApiParam({
         name: 'id',
@@ -204,6 +214,7 @@ export class PostController {
         return this.postService.update(id, req.user, updatePostDto);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Delete post' })
     @ApiParam({
         name: 'id',
@@ -218,6 +229,7 @@ export class PostController {
         return this.postService.remove(id, req.user);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Remove like from post' })
     @ApiParam({
         name: 'id',

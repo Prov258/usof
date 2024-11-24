@@ -14,6 +14,7 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CreateLikeDto } from 'src/post/dto/create-like.dto';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiForbiddenResponse,
@@ -25,6 +26,7 @@ import {
 import { CommentEntity } from './entities/comment.entity';
 import { LikeEntity } from 'src/like/entities/like.entity';
 
+@ApiBearerAuth()
 @Controller('comments')
 export class CommentController {
     constructor(private readonly commentService: CommentService) {}

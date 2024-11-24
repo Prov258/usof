@@ -21,6 +21,7 @@ import { PasswordResetDto } from './dto/passwordReset.dto';
 import { LoginResponseDto } from './dto/loginReponse.dto';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiForbiddenResponse,
@@ -63,6 +64,7 @@ export class AuthController {
         return this.authService.login(req.user, res);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'User logout' })
     @ApiNoContentResponse({ description: 'User logged out' })
     @HttpCode(HttpStatus.NO_CONTENT)
@@ -71,6 +73,7 @@ export class AuthController {
         return this.authService.logout(req.user.id, res);
     }
 
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Refresh JWT access token' })
     @ApiCreatedResponse({ type: LoginResponseDto })
     @ApiBadRequestResponse({ description: "User doesn't exist" })

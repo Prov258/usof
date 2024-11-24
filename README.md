@@ -11,7 +11,7 @@
 
 ---
 
-**usof** is a backend application inspired by platforms like StackOverflow and Reddit. It provides an API for user authentication, question posting, answers, voting, and comments. The project is designed for learning and experimentation purposes and demonstrates the use of modern backend development practices.
+**usof** is a backend application inspired by platforms like StackOverflow and Reddit. It provides an API for user authentication, posting, commenting and likes. The project is designed for learning and experimentation purposes and demonstrates the use of modern backend development practices.
 
 ---
 
@@ -92,7 +92,10 @@ Visit `http://localhost:3000/api/docs` in your browser after starting the server
 
 ## <a name="admin-panel">🔐 Admin panel</a>
 
-After starting the server you can visit admin panel at `http://localhost:3000/admin`
+After starting the server you can visit admin panel at `http://localhost:3000/admin`. After the database seeding the application comes with default admin credentials:
+
+- **Email**: `admin@example.com`
+- **Password**: `password`
 
 ## <a name="database-schema">📝 Database Schema</a>
 

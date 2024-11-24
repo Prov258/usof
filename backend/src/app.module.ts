@@ -48,7 +48,7 @@ import { AdminModule } from './admin/admin.module';
                     from: configService.get<string>('MAIL_FROM_ADDRESS'),
                 },
                 template: {
-                    dir: path.join(__dirname, '..', 'templates'),
+                    dir: path.join(__dirname, 'templates'),
                     adapter: new HandlebarsAdapter(),
                     options: {
                         strict: true,

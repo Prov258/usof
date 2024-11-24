@@ -25,6 +25,7 @@ import { Public } from 'src/decorators/public.decorator';
 import { multerOptions } from 'src/config/multer.config';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiForbiddenResponse,
@@ -39,7 +40,7 @@ import { Paginated } from 'src/post/dto/paginated';
 import { ApiPaginatedResponse } from 'src/post/dto/api-paginated-response';
 import { FileUploadDto } from './dto/file-upload.dto';
 
-@ApiTags('User')
+@ApiBearerAuth()
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
