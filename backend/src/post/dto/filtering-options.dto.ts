@@ -6,6 +6,7 @@ import {
     IsEnum,
     IsNotEmpty,
     IsOptional,
+    IsPositive,
     IsString,
 } from 'class-validator';
 
@@ -31,7 +32,17 @@ export class FilteringOptionsDto {
     status?: Status;
 
     @IsOptional()
+    @IsPositive()
+    @Type(() => Number)
+    authorId?: number;
+
+    @IsOptional()
     @IsBoolean()
     @Type(() => Boolean)
     favorite?: boolean = false;
+
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    title?: string;
 }

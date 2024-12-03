@@ -32,6 +32,7 @@ import {
     ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
+import { RefreshResponseDto } from './dto/RefreshReponse.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -84,7 +85,7 @@ export class AuthController {
     refresh(
         @Request() req,
         @Response({ passthrough: true }) res,
-    ): Promise<LoginResponseDto> {
+    ): Promise<RefreshResponseDto> {
         return this.authService.refreshToken(
             req.user.sub,
             req.user.refreshToken,

@@ -65,22 +65,32 @@ export class CommentService {
         }
 
         const increment = createLikeDto.type === LikeType.LIKE ? 1 : -1;
-        const [newLike] = await this.prisma.$transaction([
+        const [_, newLike] = await this.prisma.$transaction([
+            this.prisma.comment.update({
+                where: {
+                    id: commentId,
+                },
+                data: {
+                    rating: {
+                        increment,
+                    },
+                    author: {
+                        update: {
+                            rating: {
+                                increment,
+                            },
+                        },
+                    },
+                },
+            }),
             this.prisma.like.create({
                 data: {
                     authorId: user.id,
                     commentId,
                     type: createLikeDto.type,
                 },
-            }),
-            this.prisma.user.update({
-                where: {
-                    id: user.id,
-                },
-                data: {
-                    rating: {
-                        increment,
-                    },
+                include: {
+                    comment: true,
                 },
             }),
         ]);
@@ -148,20 +158,30 @@ export class CommentService {
         }
 
         const increment = like.type === LikeType.LIKE ? -1 : 1;
-        const [deletedLike] = await this.prisma.$transaction([
-            this.prisma.like.delete({
+        const [_, deletedLike] = await this.prisma.$transaction([
+            this.prisma.comment.update({
                 where: {
-                    id: like.id,
-                },
-            }),
-            this.prisma.user.update({
-                where: {
-                    id: user.id,
+                    id: commentId,
                 },
                 data: {
                     rating: {
                         increment,
                     },
+                    author: {
+                        update: {
+                            rating: {
+                                increment,
+                            },
+                        },
+                    },
+                },
+            }),
+            this.prisma.like.delete({
+                where: {
+                    id: like.id,
+                },
+                include: {
+                    comment: true,
                 },
             }),
         ]);

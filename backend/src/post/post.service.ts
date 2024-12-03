@@ -31,16 +31,16 @@ export class PostService {
     constructor(private prisma: PrismaService) {}
 
     async create(user: User, createPostDto: CreatePostDto): Promise<Post> {
-        for (let categoryId of createPostDto.categories) {
+        for (let title of createPostDto.categories) {
             const category = await this.prisma.category.findUnique({
                 where: {
-                    id: categoryId,
+                    title,
                 },
             });
 
             if (!category) {
                 throw new NotFoundException(
-                    `Category with id ${categoryId} doesn't exist`,
+                    `Category with title ${title} doesn't exist`,
                 );
             }
         }
@@ -50,10 +50,10 @@ export class PostService {
                 authorId: user.id,
                 ...createPostDto,
                 categories: {
-                    create: createPostDto.categories.map((id) => ({
+                    create: createPostDto.categories.map((title) => ({
                         category: {
                             connect: {
-                                id,
+                                title,
                             },
                         },
                     })),
@@ -71,22 +71,28 @@ export class PostService {
             startDate,
             endDate,
             favorite,
+            authorId,
+            title,
         }: FilteringOptionsDto,
-        user: User,
+        user?: User,
     ): Promise<Paginated<Post>> {
         const where: Prisma.PostWhereInput = {
             AND: [
-                {
-                    categories: {
-                        some: {
-                            category: {
-                                title: {
-                                    in: categories,
-                                },
-                            },
-                        },
-                    },
-                },
+                ...(categories
+                    ? [
+                          {
+                              categories: {
+                                  some: {
+                                      category: {
+                                          title: {
+                                              in: categories,
+                                          },
+                                      },
+                                  },
+                              },
+                          },
+                      ]
+                    : []),
                 {
                     createdAt: {
                         gte: startDate,
@@ -94,7 +100,16 @@ export class PostService {
                     },
                 },
                 {
-                    status: user.role === Role.ADMIN ? status : Status.ACTIVE,
+                    title: {
+                        contains: title,
+                        mode: 'insensitive',
+                    },
+                },
+                {
+                    authorId,
+                },
+                {
+                    status: user?.role === Role.ADMIN ? status : Status.ACTIVE,
                 },
                 ...(favorite
                     ? [
@@ -129,6 +144,10 @@ export class PostService {
                             },
                         },
                     },
+                    author: true,
+                    likes: {
+                        where: { authorId: user.id },
+                    },
                 },
             }),
             this.prisma.post.count({ where }),
@@ -149,15 +168,35 @@ export class PostService {
         };
     }
 
-    async findOne(id: number): Promise<Post> {
+    async findOne(id: number, user?: User): Promise<Post> {
         return await this.prisma.post.findUnique({
             where: {
                 id,
             },
+            include: {
+                categories: {
+                    select: {
+                        category: {
+                            select: {
+                                id: true,
+                                title: true,
+                            },
+                        },
+                    },
+                },
+                author: true,
+                likes: {
+                    where: { authorId: user?.id },
+                },
+            },
         });
     }
 
-    async findComments(postId: number, { page, limit }: PaginationOptionsDto) {
+    async findComments(
+        postId: number,
+        { page, limit }: PaginationOptionsDto,
+        user?: User,
+    ) {
         const where: Prisma.CommentWhereInput = {
             postId,
         };
@@ -167,6 +206,12 @@ export class PostService {
                 where,
                 take: limit,
                 skip: limit * (page - 1),
+                include: {
+                    author: true,
+                    likes: {
+                        where: { authorId: user?.id },
+                    },
+                },
             }),
             this.prisma.comment.count({ where }),
         ]);
@@ -202,6 +247,9 @@ export class PostService {
                 postId,
                 authorId: user.id,
                 ...createCommentDto,
+            },
+            include: {
+                author: true,
             },
         });
     }
@@ -249,14 +297,7 @@ export class PostService {
         }
 
         const increment = createLikeDto.type === LikeType.LIKE ? 1 : -1;
-        const [newLike] = await this.prisma.$transaction([
-            this.prisma.like.create({
-                data: {
-                    authorId: user.id,
-                    postId,
-                    type: createLikeDto.type,
-                },
-            }),
+        const [_, newLike] = await this.prisma.$transaction([
             this.prisma.post.update({
                 where: {
                     id: postId,
@@ -272,6 +313,16 @@ export class PostService {
                             },
                         },
                     },
+                },
+            }),
+            this.prisma.like.create({
+                data: {
+                    authorId: user.id,
+                    postId,
+                    type: createLikeDto.type,
+                },
+                include: {
+                    post: true,
                 },
             }),
         ]);
@@ -322,16 +373,16 @@ export class PostService {
             throw new ForbiddenException('Forbidden to update post');
         }
 
-        for (let categoryId of updatePostDto.categories) {
+        for (let title of updatePostDto.categories) {
             const category = await this.prisma.category.findUnique({
                 where: {
-                    id: categoryId,
+                    title,
                 },
             });
 
             if (!category) {
                 throw new NotFoundException(
-                    `Category with id ${categoryId} doesn't exist`,
+                    `Category with title ${title} doesn't exist`,
                 );
             }
         }
@@ -343,10 +394,11 @@ export class PostService {
             data: {
                 ...updatePostDto,
                 categories: {
-                    create: updatePostDto.categories.map((id) => ({
+                    deleteMany: {},
+                    create: updatePostDto.categories.map((title) => ({
                         category: {
                             connect: {
-                                id,
+                                title,
                             },
                         },
                     })),
@@ -417,12 +469,7 @@ export class PostService {
         }
 
         const increment = like.type === LikeType.LIKE ? -1 : 1;
-        const [deletedLike] = await this.prisma.$transaction([
-            this.prisma.like.delete({
-                where: {
-                    id: like.id,
-                },
-            }),
+        const [_, deletedLike] = await this.prisma.$transaction([
             this.prisma.post.update({
                 where: {
                     id: postId,
@@ -438,6 +485,14 @@ export class PostService {
                             },
                         },
                     },
+                },
+            }),
+            this.prisma.like.delete({
+                where: {
+                    id: like.id,
+                },
+                include: {
+                    post: true,
                 },
             }),
         ]);

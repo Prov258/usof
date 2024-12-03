@@ -65,10 +65,10 @@ export class PostController {
         description: 'post id',
     })
     @ApiOkResponse({ type: PostEntity })
-    @Public()
+    // @Public()
     @Get(':id')
-    findOne(@Param('id') id: number) {
-        return this.postService.findOne(id);
+    findOne(@Request() req, @Param('id') id: number) {
+        return this.postService.findOne(id, req.user);
     }
 
     @ApiOperation({ summary: 'Get all comments for post' })
@@ -77,13 +77,14 @@ export class PostController {
         description: 'post id',
     })
     @ApiPaginatedResponse(CommentEntity, 'Paginated comments for post by id')
-    @Public()
+    // @Public()
     @Get(':id/comments')
     getPostComments(
+        @Request() req,
         @Param('id') id: number,
         @Query() paginationOptions: PaginationOptionsDto,
     ) {
-        return this.postService.findComments(id, paginationOptions);
+        return this.postService.findComments(id, paginationOptions, req.user);
     }
 
     @ApiBearerAuth()

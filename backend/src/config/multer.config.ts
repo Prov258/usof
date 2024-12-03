@@ -8,7 +8,14 @@ import { existsSync, mkdirSync } from 'fs';
 export const multerOptions = {
     storage: diskStorage({
         destination: (req: Request, file: Express.Multer.File, cb: any) => {
-            const destPath = join(__dirname, '..', '..', 'public', 'avatars');
+            const destPath = join(
+                __dirname,
+                '..',
+                '..',
+                '..',
+                'public',
+                'avatars',
+            );
 
             if (!existsSync(destPath)) {
                 mkdirSync(destPath, { recursive: true });

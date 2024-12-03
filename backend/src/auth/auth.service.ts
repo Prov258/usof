@@ -17,6 +17,8 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Response } from 'express';
 import { LoginResponseDto } from './dto/loginReponse.dto';
 import { UserEntity } from 'src/user/dto/entities/user.entity';
+import { plainToInstance } from 'class-transformer';
+import { RefreshResponseDto } from './dto/RefreshReponse.dto';
 
 @Injectable()
 export class AuthService {
@@ -63,7 +65,7 @@ export class AuthService {
             sameSite: 'strict',
         });
 
-        return { accessToken };
+        return { accessToken, user: plainToInstance(UserEntity, user) };
     }
 
     async logout(userId: number, res: Response): Promise<void> {
@@ -215,7 +217,7 @@ export class AuthService {
         userId: number,
         oldRefreshToken: string,
         res: Response,
-    ): Promise<LoginResponseDto> {
+    ): Promise<RefreshResponseDto> {
         const user = await this.prisma.user.findUnique({
             where: {
                 id: userId,

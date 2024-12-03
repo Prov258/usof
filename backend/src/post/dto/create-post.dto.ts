@@ -40,7 +40,7 @@ export class CreatePostDto {
         type: Array<String>,
     })
     @IsOptional()
-    @IsPositive({ each: true })
+    @IsString({ each: true })
     @IsNotEmpty({ each: true })
-    categories: number[] = [];
+    categories: string[] = [];
 }

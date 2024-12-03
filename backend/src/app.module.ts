@@ -23,7 +23,7 @@ import { AdminModule } from './admin/admin.module';
             isGlobal: true,
         }),
         ServeStaticModule.forRoot({
-            rootPath: path.join(__dirname, '..', 'public'),
+            rootPath: path.join(__dirname, '..', '..', 'public'),
             serveStaticOptions: {
                 index: false,
             },

@@ -1,19 +1,28 @@
-import { Link, useNavigate } from 'react-router-dom';
-import FormInput from '../components/auth/FormInput';
-import { useDispatch, useSelector } from 'react-redux';
 import { useForm } from 'react-hook-form';
-import { registerUser } from '../redux/auth/authActions';
-import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, Link } from 'react-router-dom';
+import { register as registerUser } from '../store/slices/authSlice';
+import type { RootState } from '../store';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import FormInput from '../components/FormInput';
+import { useEffect } from 'react';
+
+interface RegisterForm {
+    login: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    fullName: string;
+}
 
 const schema = z
     .object({
         email: z.string().email('Invalid email address'),
-        fullName: z.string().nullish(),
-        login: z.string(),
-        password: z.string(),
-        confirmPassword: z.string(),
+        fullName: z.string().min(1, 'Full Name is required'),
+        login: z.string().min(1, 'Login is required'),
+        password: z.string().min(1, 'Password is required'),
+        confirmPassword: z.string().min(1, 'Password Confirm is required'),
     })
     .refine((data) => data.password === data.confirmPassword, {
         path: ['confirmPassword'],
@@ -21,120 +30,101 @@ const schema = z
     });
 
 const Register = () => {
-    const { loading, userInfo, error, success } = useSelector(
-        (state) => state.auth,
-    );
-    const dispatch = useDispatch();
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm({
+    } = useForm<RegisterForm>({
         resolver: zodResolver(schema),
     });
 
-    const submitForm = (data) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { success, user, isLoading, error } = useSelector(
+        (state: RootState) => state.auth,
+    );
+
+    const onSubmit = async (data: RegisterForm) => {
         dispatch(registerUser(data));
     };
 
-    const navigate = useNavigate();
-
     useEffect(() => {
-        // redirect user to login page if registration was successful
         if (success) navigate('/login');
-        // redirect authenticated user to profile screen
-        if (userInfo) navigate('/');
-    }, [navigate, userInfo, success]);
+        if (user) navigate('/');
+    }, [navigate, user, success]);
 
     return (
-        <>
-            {/*
-              This example requires updating your template:
-      
-              ```
-              <html class="h-full bg-white">
-              <body class="h-full">
-              ```
-            */}
-            <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-                <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                    <img
-                        alt="Your Company"
-                        src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                        className="mx-auto h-10 w-auto"
+        <div className="max-w-md mx-auto">
+            <div className="bg-white p-8 rounded-lg shadow-md">
+                <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
+                    Sign Up
+                </h2>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <FormInput
+                        name={'login'}
+                        type={'text'}
+                        label={'Login'}
+                        register={register}
+                        errors={errors}
                     />
-                    <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-                        Register
-                    </h2>
-                </div>
+                    <FormInput
+                        name={'fullName'}
+                        type={'text'}
+                        label={'Full Name'}
+                        register={register}
+                        errors={errors}
+                    />
+                    <FormInput
+                        name={'email'}
+                        type={'email'}
+                        label={'Email'}
+                        register={register}
+                        errors={errors}
+                    />
+                    <FormInput
+                        name={'password'}
+                        type={'password'}
+                        label={'Password'}
+                        register={register}
+                        errors={errors}
+                    />
+                    <FormInput
+                        name={'confirmPassword'}
+                        type={'password'}
+                        label={'Confirm Password'}
+                        register={register}
+                        errors={errors}
+                    />
 
-                <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm text-left">
-                    <form
-                        action="#"
-                        method="POST"
-                        className="space-y-6"
-                        onSubmit={handleSubmit(submitForm)}
-                    >
-                        <FormInput
-                            name={'email'}
-                            type={'email'}
-                            label={'Email address'}
-                            register={register}
-                            errors={errors}
-                        />
-                        <FormInput
-                            name={'fullName'}
-                            type={'text'}
-                            label={'Full Name'}
-                            register={register}
-                            errors={errors}
-                        />
-                        <FormInput
-                            name={'login'}
-                            type={'text'}
-                            label={'Login'}
-                            register={register}
-                            errors={errors}
-                        />
-                        <FormInput
-                            name={'password'}
-                            type={'password'}
-                            label={'Password'}
-                            register={register}
-                            errors={errors}
-                        />
-                        <FormInput
-                            name={'confirmPassword'}
-                            type={'password'}
-                            label={'Confirm Password'}
-                            register={register}
-                            errors={errors}
-                        />
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            >
-                                Register
-                            </button>
+                    {error && (
+                        <div className="text-sm text-red-600 text-center">
+                            {error}
                         </div>
+                    )}
 
-                        {error && <p>{error}</p>}
-                    </form>
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                    >
+                        {isLoading ? 'Creating account...' : 'Create account'}
+                    </button>
+                </form>
 
-                    <p className="mt-10 text-center text-sm/6 text-gray-500">
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-600">
                         Already have an account?{' '}
                         <Link
-                            className="font-semibold text-indigo-600 hover:text-indigo-500"
                             to="/login"
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
                         >
-                            Sign In
+                            Sign in
                         </Link>
                     </p>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

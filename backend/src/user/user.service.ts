@@ -98,12 +98,25 @@ export class UserService {
             throw new ForbiddenException('No permission to update user');
         }
 
-        if (
-            !(await this.isUserUnique(
-                updateUserDto?.login,
-                updateUserDto?.email,
-            ))
-        ) {
+        const userExists = await this.prisma.user.findFirst({
+            where: {
+                AND: [
+                    {
+                        OR: [
+                            { login: updateUserDto?.login },
+                            { email: updateUserDto?.email },
+                        ],
+                    },
+                    {
+                        NOT: {
+                            id: user.id,
+                        },
+                    },
+                ],
+            },
+        });
+
+        if (userExists && (updateUserDto?.login || updateUserDto?.email)) {
             throw new BadRequestException('User already exists');
         }
 
@@ -143,8 +156,8 @@ export class UserService {
                         __dirname,
                         '..',
                         '..',
+                        '..',
                         'public',
-                        'avatars',
                         user.avatar,
                     ),
                 );
