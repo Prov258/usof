@@ -69,7 +69,7 @@ export class AuthController {
     @ApiOperation({ summary: 'User logout' })
     @ApiNoContentResponse({ description: 'User logged out' })
     @HttpCode(HttpStatus.NO_CONTENT)
-    @Get('logout')
+    @Post('logout')
     logout(@Request() req, @Response() res): Promise<void> {
         return this.authService.logout(req.user.id, res);
     }
@@ -114,7 +114,7 @@ export class AuthController {
     @Public()
     @HttpCode(HttpStatus.NO_CONTENT)
     @Get('verify-email/:token')
-    verifyEmail(@Param('token') token: string): Promise<void> {
+    verifyEmail(@Param('token') token: string): Promise<string> {
         return this.authService.verifyEmail(token);
     }
 

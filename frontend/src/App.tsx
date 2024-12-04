@@ -11,6 +11,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import NoPage from './pages/NoPage';
 import PasswordReset from './pages/PasswordReset';
 import EditPost from './pages/EditPost';
+import PrivateRoute from './components/PrivateRoute';
+import EmailVerification from './pages/EmailVerification';
 
 const App = () => {
     return (
@@ -19,7 +21,14 @@ const App = () => {
                 <Navbar />
                 <main className="container mx-auto px-4 py-8">
                     <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route
+                            path="/"
+                            element={
+                                <PrivateRoute>
+                                    <Home />
+                                </PrivateRoute>
+                            }
+                        />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route
@@ -30,10 +39,42 @@ const App = () => {
                             path="/password-reset/:token"
                             element={<PasswordReset />}
                         />
-                        <Route path="/posts/:id" element={<PostDetail />} />
-                        <Route path="/create-post" element={<CreatePost />} />
-                        <Route path="/posts/:id/edit" element={<EditPost />} />
-                        <Route path="/profile" element={<Profile />} />
+                        <Route
+                            path="/email-verification"
+                            element={<EmailVerification />}
+                        />
+                        <Route
+                            path="/posts/:id"
+                            element={
+                                <PrivateRoute>
+                                    <PostDetail />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/create-post"
+                            element={
+                                <PrivateRoute>
+                                    <CreatePost />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/posts/:id/edit"
+                            element={
+                                <PrivateRoute>
+                                    <EditPost />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route
+                            path="/profile"
+                            element={
+                                <PrivateRoute>
+                                    <Profile />
+                                </PrivateRoute>
+                            }
+                        />
                         <Route path="*" element={<NoPage />} />
                     </Routes>
                 </main>

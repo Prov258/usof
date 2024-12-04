@@ -43,7 +43,7 @@ const Login = () => {
     }, [navigate, user]);
 
     return (
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto mt-20">
             <div className="bg-white p-8 rounded-lg shadow-md">
                 <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
                     Sign In
@@ -97,6 +97,17 @@ const Login = () => {
                             className="font-medium text-indigo-600 hover:text-indigo-500"
                         >
                             Sign up
+                        </Link>
+                    </p>
+                </div>
+                <div className="mt-3 text-center">
+                    <p className="text-sm text-gray-600">
+                        Didn't receive verification email?{' '}
+                        <Link
+                            to="/email-verification"
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
+                            Send again
                         </Link>
                     </p>
                 </div>

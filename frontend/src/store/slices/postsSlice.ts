@@ -1,9 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios from '../../utils/axios';
 import type { Post } from '../../types';
 import { PostFiltersType } from '../../components/PostFilters';
-
-const API_URL = 'http://localhost:3000/api';
 
 interface PostsState {
     posts: Post[];
@@ -41,11 +39,7 @@ export const createPost = createAsyncThunk(
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             };
-            const { data } = await axios.post(
-                `${API_URL}/posts`,
-                postData,
-                config,
-            );
+            const { data } = await axios.post(`/posts`, postData, config);
             return data;
         } catch (error) {
             if (error.response && error.response.data.message) {
@@ -68,11 +62,7 @@ export const updatePost = createAsyncThunk(
                 },
             };
             const { id, ...data } = postData;
-            const response = await axios.patch(
-                `${API_URL}/posts/${id}`,
-                data,
-                config,
-            );
+            const response = await axios.patch(`/posts/${id}`, data, config);
             return response.data;
         } catch (error) {
             if (error.response && error.response.data.message) {
@@ -99,7 +89,7 @@ export const fetchPosts = createAsyncThunk(
                     categories: filters.categories.join(','),
                 }),
         });
-        const response = await axios.get(`${API_URL}/posts?${params}`, {
+        const response = await axios.get(`/posts?${params}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
@@ -111,7 +101,7 @@ export const fetchPosts = createAsyncThunk(
 export const fetchPostById = createAsyncThunk(
     'posts/fetchById',
     async (id: number) => {
-        const response = await axios.get(`${API_URL}/posts/${id}`, {
+        const response = await axios.get(`/posts/${id}`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
@@ -130,7 +120,7 @@ export const votePost = createAsyncThunk(
         voteType: 'LIKE' | 'DISLIKE' | null;
     }) => {
         if (voteType === null) {
-            const response = await axios.delete(`${API_URL}/posts/${id}/like`, {
+            const response = await axios.delete(`/posts/${id}/like`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -139,7 +129,7 @@ export const votePost = createAsyncThunk(
         }
 
         const response = await axios.post(
-            `${API_URL}/posts/${id}/like`,
+            `/posts/${id}/like`,
             { type: voteType },
             {
                 headers: {

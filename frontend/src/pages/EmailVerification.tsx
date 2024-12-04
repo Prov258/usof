@@ -4,10 +4,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { forgotPassword } from '../store/slices/authSlice';
+import { emailVerification, forgotPassword } from '../store/slices/authSlice';
 import FormInput from '../components/FormInput';
 
-interface ForgotPasswordForm {
+interface EmailVerificationForm {
     email: string;
 }
 
@@ -15,7 +15,7 @@ const schema = z.object({
     email: z.string().email('Invalid email address'),
 });
 
-const ForgotPassword = () => {
+const EmailVerification = () => {
     const { success, isLoading, user, error } = useSelector(
         (state) => state.auth,
     );
@@ -24,7 +24,7 @@ const ForgotPassword = () => {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<ForgotPasswordForm>({
+    } = useForm<EmailVerificationForm>({
         resolver: zodResolver(schema),
     });
     const navigate = useNavigate();
@@ -35,8 +35,8 @@ const ForgotPassword = () => {
         }
     }, [navigate, user]);
 
-    const onSubmit = (data: ForgotPasswordForm) => {
-        dispatch(forgotPassword(data.email));
+    const onSubmit = (data: EmailVerificationForm) => {
+        dispatch(emailVerification(data.email));
     };
 
     return (
@@ -46,7 +46,7 @@ const ForgotPassword = () => {
                     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-2 lg:px-8 ">
                         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                             <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-                                Reset Password
+                                Send Email Verification
                             </h2>
                         </div>
 
@@ -106,4 +106,4 @@ const ForgotPassword = () => {
     );
 };
 
-export default ForgotPassword;
+export default EmailVerification;

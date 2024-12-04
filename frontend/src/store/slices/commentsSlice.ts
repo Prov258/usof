@@ -1,8 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios from '../../utils/axios';
 import type { Comment } from '../../types';
-
-const API_URL = 'http://localhost:3000/api';
 
 interface CommentsState {
     comments: Comment[];
@@ -13,15 +11,12 @@ interface CommentsState {
 export const fetchCommentsForPost = createAsyncThunk(
     'comments/fetchForPost',
     async (postId: number) => {
-        const response = await axios.get(
-            `${API_URL}/posts/${postId}/comments`,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
+        const response = await axios.get(`/posts/${postId}/comments`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
-        );
+        });
         return response.data;
     },
 );
@@ -43,7 +38,7 @@ export const createComment = createAsyncThunk(
                 },
             };
             const { data } = await axios.post(
-                `${API_URL}/posts/${commentData.postId}/comments`,
+                `/posts/${commentData.postId}/comments`,
                 { content: commentData.content },
                 config,
             );
@@ -68,19 +63,16 @@ export const voteComment = createAsyncThunk(
         voteType: 'LIKE' | 'DISLIKE' | null;
     }) => {
         if (voteType === null) {
-            const response = await axios.delete(
-                `${API_URL}/comments/${id}/like`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
+            const response = await axios.delete(`/comments/${id}/like`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
-            );
+            });
             return { ...response.data, type: null };
         }
 
         const response = await axios.post(
-            `${API_URL}/comments/${id}/like`,
+            `/comments/${id}/like`,
             { type: voteType },
             {
                 headers: {

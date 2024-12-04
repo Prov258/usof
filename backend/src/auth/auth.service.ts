@@ -54,6 +54,10 @@ export class AuthService {
     }
 
     async login(user: User, res: Response): Promise<LoginResponseDto> {
+        if (!user.emailVerified) {
+            throw new ForbiddenException('You have to verify your email');
+        }
+
         const { accessToken, refreshToken } = await this.generateTokens(
             user.id,
             user.login,
@@ -77,7 +81,6 @@ export class AuthService {
                 refreshToken: null,
             },
         });
-
         res.clearCookie('refresh_token');
     }
 
@@ -108,7 +111,7 @@ export class AuthService {
             subject: 'Password Reset',
             template: 'password-reset',
             context: {
-                resetLink: `${appUrl}/auth/password-reset/${otp.token}`,
+                resetLink: `http://localhost:5173/password-reset/${otp.token}`,
             },
         });
     }
@@ -177,12 +180,12 @@ export class AuthService {
             subject: 'Email Verification',
             template: 'email-verification',
             context: {
-                verifyLink: `${appUrl}/auth/verify-email/${otp.token}`,
+                verifyLink: `${appUrl}/api/auth/verify-email/${otp.token}`,
             },
         });
     }
 
-    async verifyEmail(token: string): Promise<void> {
+    async verifyEmail(token: string): Promise<string> {
         const otp = await this.prisma.otp.findFirst({
             where: {
                 token,
@@ -211,13 +214,15 @@ export class AuthService {
                 id: otp.id,
             },
         });
+
+        return 'Verified';
     }
 
     async refreshToken(
         userId: number,
         oldRefreshToken: string,
         res: Response,
-    ): Promise<RefreshResponseDto> {
+    ): Promise<LoginResponseDto> {
         const user = await this.prisma.user.findUnique({
             where: {
                 id: userId,
@@ -249,7 +254,7 @@ export class AuthService {
             sameSite: 'strict',
         });
 
-        return { accessToken };
+        return { accessToken, user: plainToInstance(UserEntity, user) };
     }
 
     async updateRefreshToken(userId: number, refreshToken: string) {

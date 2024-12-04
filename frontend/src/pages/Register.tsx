@@ -54,7 +54,7 @@ const Register = () => {
     }, [navigate, user, success]);
 
     return (
-        <div className="max-w-md mx-auto">
+        <div className="max-w-md mx-auto mt-20">
             <div className="bg-white p-8 rounded-lg shadow-md">
                 <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
                     Sign Up

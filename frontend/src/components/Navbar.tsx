@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { Search, PlusSquare, User, LogOut } from 'lucide-react';
-import { logout } from '../store/slices/authSlice';
+import { clearUserState, logout } from '../store/slices/authSlice';
 import type { RootState } from '../store';
 
 const Navbar = () => {
@@ -9,8 +9,8 @@ const Navbar = () => {
     const navigate = useNavigate();
     const { user } = useSelector((state: RootState) => state.auth);
 
-    const handleLogout = () => {
-        dispatch(logout());
+    const handleLogout = async () => {
+        dispatch(clearUserState());
         navigate('/login');
     };
 

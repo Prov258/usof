@@ -9,7 +9,15 @@ async function bootstrap() {
 
     app.use(cookieParser());
     app.enableCors({
+        origin: (origin, callback) => {
+            if (!origin) {
+                return callback(null, true);
+            }
+            callback(null, true);
+        },
         credentials: true,
+        methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     });
     app.setGlobalPrefix('api');
     app.useGlobalPipes(
@@ -23,7 +31,7 @@ async function bootstrap() {
     const config = new DocumentBuilder()
         .setTitle('Usof API')
         .setDescription(
-            'usof is a backend Q&A application. It provides an API for user authentication, posting, commenting and likes.'
+            'usof is a backend Q&A application. It provides an API for user authentication, posting, commenting and likes.',
         )
         .setVersion('1.0')
         .setLicense('MIT', 'https://opensource.org/licenses/MIT')

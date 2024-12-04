@@ -100,21 +100,21 @@ const PostDetail = () => {
             </div>
 
             <div className="mt-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    {comments.length}{' '}
-                    {comments.length === 1 ? 'Answer' : 'Answers'}
-                </h2>
-
-                <CommentList comments={comments} />
-
                 {user && (
-                    <div className="mt-8">
+                    <div className="mb-8">
                         <h3 className="text-xl font-bold text-gray-900 mb-4">
                             Your Answer
                         </h3>
                         <CommentForm postId={currentPost.id} />
                     </div>
                 )}
+
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    {comments.length}{' '}
+                    {comments.length === 1 ? 'Answer' : 'Answers'}
+                </h2>
+
+                <CommentList comments={comments} />
             </div>
         </div>
     );
