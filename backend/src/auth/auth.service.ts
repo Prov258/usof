@@ -218,30 +218,7 @@ export class AuthService {
         return 'Verified';
     }
 
-    async refreshToken(
-        userId: number,
-        oldRefreshToken: string,
-        res: Response,
-    ): Promise<LoginResponseDto> {
-        const user = await this.prisma.user.findUnique({
-            where: {
-                id: userId,
-            },
-        });
-
-        if (!user || !user.refreshToken) {
-            throw new BadRequestException("User doesn't exist");
-        }
-
-        const refreshTokenMatches = await bcrypt.compare(
-            oldRefreshToken,
-            user.refreshToken,
-        );
-
-        if (!refreshTokenMatches) {
-            throw new UnauthorizedException('Invalid refresh token');
-        }
-
+    async refreshToken(user: User, res: Response): Promise<LoginResponseDto> {
         const { accessToken, refreshToken } = await this.generateTokens(
             user.id,
             user.login,
@@ -278,7 +255,8 @@ export class AuthService {
                 },
                 {
                     secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-                    expiresIn: '15m',
+                    expiresIn:
+                        this.configService.get<string>('JWT_ACCESS_TIME'),
                 },
             ),
             this.jwtService.signAsync(
@@ -290,7 +268,8 @@ export class AuthService {
                     secret: this.configService.get<string>(
                         'JWT_REFRESH_SECRET',
                     ),
-                    expiresIn: '7d',
+                    expiresIn:
+                        this.configService.get<string>('JWT_REFRESH_TIME'),
                 },
             ),
         ]);

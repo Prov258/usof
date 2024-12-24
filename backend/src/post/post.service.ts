@@ -145,9 +145,11 @@ export class PostService {
                         },
                     },
                     author: true,
-                    likes: {
-                        where: { authorId: user.id },
-                    },
+                    likes: user
+                        ? {
+                              where: { authorId: user.id },
+                          }
+                        : false,
                 },
             }),
             this.prisma.post.count({ where }),
@@ -185,9 +187,11 @@ export class PostService {
                     },
                 },
                 author: true,
-                likes: {
-                    where: { authorId: user?.id },
-                },
+                likes: user
+                    ? {
+                          where: { authorId: user.id },
+                      }
+                    : false,
             },
         });
     }
@@ -208,9 +212,11 @@ export class PostService {
                 skip: limit * (page - 1),
                 include: {
                     author: true,
-                    likes: {
-                        where: { authorId: user?.id },
-                    },
+                    likes: user
+                        ? {
+                              where: { authorId: user.id },
+                          }
+                        : false,
                 },
             }),
             this.prisma.comment.count({ where }),

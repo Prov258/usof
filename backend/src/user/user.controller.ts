@@ -17,7 +17,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Roles } from 'src/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserEntity } from './dto/entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -39,6 +39,7 @@ import { PaginationOptionsDto } from 'src/post/dto/pagination-options.dto';
 import { Paginated } from 'src/post/dto/paginated';
 import { ApiPaginatedResponse } from 'src/post/dto/api-paginated-response';
 import { FileUploadDto } from './dto/file-upload.dto';
+import { CurrentUser } from 'src/decorators/user.decorator';
 
 @ApiBearerAuth()
 @Controller('users')
@@ -84,10 +85,10 @@ export class UserController {
     @UseInterceptors(FileInterceptor('avatar', multerOptions))
     @Patch('avatar')
     uploadAvatar(
-        @Request() req,
+        @CurrentUser() user: User,
         @UploadedFile() avatar: Express.Multer.File,
     ): Promise<UserEntity> {
-        return this.userService.uploadAvatar(req.user, avatar);
+        return this.userService.uploadAvatar(user, avatar);
     }
 
     @ApiOperation({ summary: 'Update user' })
@@ -101,11 +102,11 @@ export class UserController {
     @ApiForbiddenResponse({ description: 'No permission to update user' })
     @Patch(':id')
     update(
-        @Request() req,
+        @CurrentUser() user: User,
         @Param('id', ParseIntPipe) id: number,
         @Body() updateUserDto: UpdateUserDto,
     ): Promise<UserEntity> {
-        return this.userService.update(id, req.user, updateUserDto);
+        return this.userService.update(id, user, updateUserDto);
     }
 
     @ApiOperation({ summary: 'Delete user' })
@@ -117,9 +118,9 @@ export class UserController {
     @ApiForbiddenResponse({ description: 'No permission to update user' })
     @Delete(':id')
     remove(
-        @Request() req,
+        @CurrentUser() user: User,
         @Param('id', ParseIntPipe) id: number,
     ): Promise<UserEntity> {
-        return this.userService.remove(id, req.user);
+        return this.userService.remove(id, user);
     }
 }

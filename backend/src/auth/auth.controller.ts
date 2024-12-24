@@ -33,6 +33,8 @@ import {
 } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { RefreshResponseDto } from './dto/RefreshReponse.dto';
+import { CurrentUser } from 'src/decorators/user.decorator';
+import { User } from '@prisma/client';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -59,10 +61,10 @@ export class AuthController {
     @UseGuards(LocalAuthGuard)
     @Post('login')
     login(
-        @Request() req,
+        @CurrentUser() user: User,
         @Response({ passthrough: true }) res,
     ): Promise<LoginResponseDto> {
-        return this.authService.login(req.user, res);
+        return this.authService.login(user, res);
     }
 
     @ApiBearerAuth()
@@ -70,8 +72,8 @@ export class AuthController {
     @ApiNoContentResponse({ description: 'User logged out' })
     @HttpCode(HttpStatus.NO_CONTENT)
     @Post('logout')
-    logout(@Request() req, @Response() res): Promise<void> {
-        return this.authService.logout(req.user.id, res);
+    logout(@CurrentUser() user: User, @Response() res): Promise<void> {
+        return this.authService.logout(user.id, res);
     }
 
     @ApiBearerAuth()
@@ -83,14 +85,10 @@ export class AuthController {
     @UseGuards(JwtRefreshGuard)
     @Get('refresh')
     refresh(
-        @Request() req,
+        @CurrentUser() user: User,
         @Response({ passthrough: true }) res,
     ): Promise<RefreshResponseDto> {
-        return this.authService.refreshToken(
-            req.user.sub,
-            req.user.refreshToken,
-            res,
-        );
+        return this.authService.refreshToken(user, res);
     }
 
     @ApiOperation({ summary: 'Send email verification' })

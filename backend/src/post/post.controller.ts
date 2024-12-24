@@ -18,7 +18,7 @@ import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { SortingOptionsDto } from './dto/sorting-options.dto';
 import { FilteringOptionsDto } from './dto/filtering-options.dto';
-import { Favorite } from '@prisma/client';
+import { Favorite, User } from '@prisma/client';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -36,6 +36,7 @@ import { CommentEntity } from 'src/comment/entities/comment.entity';
 import { CategoryEntity } from 'src/category/entities/category.entity';
 import { LikeEntity } from 'src/like/entities/like.entity';
 import { FavoriteEntity } from './entities/favorite.entity';
+import { CurrentUser } from 'src/decorators/user.decorator';
 
 @Controller('posts')
 export class PostController {
@@ -44,9 +45,10 @@ export class PostController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Get all posts' })
     @ApiPaginatedResponse(PostEntity, 'Paginated list of posts')
+    @Public()
     @Get()
     findAll(
-        @Request() req,
+        @CurrentUser() user: User,
         @Query() sortingOptions: SortingOptionsDto,
         @Query() filteringOptions: FilteringOptionsDto,
         @Query() paginationOptions: PaginationOptionsDto,
@@ -55,7 +57,7 @@ export class PostController {
             paginationOptions,
             sortingOptions,
             filteringOptions,
-            req.user,
+            user,
         );
     }
 
@@ -65,10 +67,10 @@ export class PostController {
         description: 'post id',
     })
     @ApiOkResponse({ type: PostEntity })
-    // @Public()
+    @Public()
     @Get(':id')
-    findOne(@Request() req, @Param('id') id: number) {
-        return this.postService.findOne(id, req.user);
+    findOne(@CurrentUser() user: User, @Param('id') id: number) {
+        return this.postService.findOne(id, user);
     }
 
     @ApiOperation({ summary: 'Get all comments for post' })
@@ -77,14 +79,14 @@ export class PostController {
         description: 'post id',
     })
     @ApiPaginatedResponse(CommentEntity, 'Paginated comments for post by id')
-    // @Public()
+    @Public()
     @Get(':id/comments')
     getPostComments(
-        @Request() req,
+        @CurrentUser() user: User,
         @Param('id') id: number,
         @Query() paginationOptions: PaginationOptionsDto,
     ) {
-        return this.postService.findComments(id, paginationOptions, req.user);
+        return this.postService.findComments(id, paginationOptions, user);
     }
 
     @ApiBearerAuth()
@@ -99,14 +101,10 @@ export class PostController {
     @Post(':id/comments')
     createPostComment(
         @Param('id') id: number,
-        @Request() req,
+        @CurrentUser() user: User,
         @Body() createCommentDto: CreateCommentDto,
     ) {
-        return this.postService.createPostComment(
-            id,
-            req.user,
-            createCommentDto,
-        );
+        return this.postService.createPostComment(id, user, createCommentDto);
     }
 
     @ApiBearerAuth()
@@ -139,8 +137,11 @@ export class PostController {
     @ApiCreatedResponse({ type: PostEntity })
     @ApiNotFoundResponse({ description: "Category doesn't exist" })
     @Post()
-    createPost(@Request() req, @Body() createPostDto: CreatePostDto) {
-        return this.postService.create(req.user, createPostDto);
+    createPost(
+        @CurrentUser() user: User,
+        @Body() createPostDto: CreatePostDto,
+    ) {
+        return this.postService.create(user, createPostDto);
     }
 
     @ApiBearerAuth()
@@ -155,11 +156,11 @@ export class PostController {
     @ApiBadRequestResponse({ description: "You've already liked this post" })
     @Post(':id/like')
     createPostLike(
-        @Request() req,
+        @CurrentUser() user: User,
         @Param('id') id: number,
         @Body() createLikeDto: CreateLikeDto,
     ) {
-        return this.postService.createPostLike(id, req.user, createLikeDto);
+        return this.postService.createPostLike(id, user, createLikeDto);
     }
 
     @ApiBearerAuth()
@@ -174,8 +175,8 @@ export class PostController {
         description: "You've already added this post to favorite",
     })
     @Post(':id/favorite')
-    createPostFavorite(@Request() req, @Param('id') id: number) {
-        return this.postService.createPostFavorite(id, req.user);
+    createPostFavorite(@CurrentUser() user: User, @Param('id') id: number) {
+        return this.postService.createPostFavorite(id, user);
     }
 
     @ApiBearerAuth()
@@ -190,8 +191,8 @@ export class PostController {
         description: "Post isn't in your favorites",
     })
     @Delete(':id/favorite')
-    removePostFavorite(@Request() req, @Param('id') id: number) {
-        return this.postService.removePostFavorite(id, req.user);
+    removePostFavorite(@CurrentUser() user: User, @Param('id') id: number) {
+        return this.postService.removePostFavorite(id, user);
     }
 
     @ApiBearerAuth()
@@ -208,11 +209,11 @@ export class PostController {
     @ApiNotFoundResponse({ description: "Category doesn't exist" })
     @Patch(':id')
     update(
-        @Request() req,
+        @CurrentUser() user: User,
         @Param('id') id: number,
         @Body() updatePostDto: UpdatePostDto,
     ) {
-        return this.postService.update(id, req.user, updatePostDto);
+        return this.postService.update(id, user, updatePostDto);
     }
 
     @ApiBearerAuth()
@@ -226,8 +227,8 @@ export class PostController {
         description: 'No permission to update post or post is missing',
     })
     @Delete(':id')
-    remove(@Request() req, @Param('id') id: number) {
-        return this.postService.remove(id, req.user);
+    remove(@CurrentUser() user: User, @Param('id') id: number) {
+        return this.postService.remove(id, user);
     }
 
     @ApiBearerAuth()
@@ -242,7 +243,7 @@ export class PostController {
         description: 'Like not found',
     })
     @Delete(':id/like')
-    removePostLike(@Request() req, @Param('id') id: number) {
-        return this.postService.removePostLike(id, req.user);
+    removePostLike(@CurrentUser() user: User, @Param('id') id: number) {
+        return this.postService.removePostLike(id, user);
     }
 }

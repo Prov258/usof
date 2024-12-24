@@ -25,6 +25,8 @@ import {
 } from '@nestjs/swagger';
 import { CommentEntity } from './entities/comment.entity';
 import { LikeEntity } from 'src/like/entities/like.entity';
+import { CurrentUser } from 'src/decorators/user.decorator';
+import { User } from '@prisma/client';
 
 @ApiBearerAuth()
 @Controller('comments')
@@ -65,15 +67,11 @@ export class CommentController {
     @ApiBadRequestResponse({ description: "You've already liked this comment" })
     @Post(':id/like')
     createCommentLike(
-        @Request() req,
+        @CurrentUser() user: User,
         @Param('id') id: number,
         @Body() createLikeDto: CreateLikeDto,
     ) {
-        return this.commentService.createCommentLike(
-            id,
-            req.user,
-            createLikeDto,
-        );
+        return this.commentService.createCommentLike(id, user, createLikeDto);
     }
 
     @ApiOperation({ summary: 'Update comment' })
@@ -87,11 +85,11 @@ export class CommentController {
     @ApiForbiddenResponse({ description: 'Forbidden to update comment' })
     @Patch(':id')
     update(
-        @Request() req,
+        @CurrentUser() user: User,
         @Param('id') id: number,
         @Body() updateCommentDto: UpdateCommentDto,
     ) {
-        return this.commentService.update(id, req.user, updateCommentDto);
+        return this.commentService.update(id, user, updateCommentDto);
     }
 
     @ApiOperation({ summary: 'Delete comment' })
@@ -103,8 +101,8 @@ export class CommentController {
     @ApiNotFoundResponse({ description: "Comment doesn't exist" })
     @ApiForbiddenResponse({ description: 'Forbidden to delete comment' })
     @Delete(':id')
-    remove(@Request() req, @Param('id') id: number) {
-        return this.commentService.remove(id, req.user);
+    remove(@CurrentUser() user: User, @Param('id') id: number) {
+        return this.commentService.remove(id, user);
     }
 
     @ApiOperation({ summary: 'Remove like from comment' })
@@ -115,7 +113,7 @@ export class CommentController {
     @ApiOkResponse({ type: LikeEntity })
     @ApiNotFoundResponse({ description: "Comment doesn't exist" })
     @Delete(':id/like')
-    removeCommentLike(@Request() req, @Param('id') id: number) {
-        return this.commentService.removeCommentLike(id, req.user);
+    removeCommentLike(@CurrentUser() user: User, @Param('id') id: number) {
+        return this.commentService.removeCommentLike(id, user);
     }
 }
