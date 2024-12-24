@@ -8,48 +8,37 @@ import {
     Delete,
     UseGuards,
     ParseIntPipe,
-    Request,
     UseInterceptors,
     UploadedFile,
     Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { Roles } from 'src/decorators/roles.decorator';
+import { CreateUserDto, UpdateUserDto, FileUploadDto } from './dto';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 import { Role, User } from '@prisma/client';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { UserEntity } from './dto/entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/decorators/public.decorator';
 import { multerOptions } from 'src/config/multer.config';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.dto';
+import { Paginated } from 'src/shared/pagination/paginated';
+import { CurrentUser } from 'src/shared/decorators/user.decorator';
 import {
-    ApiBadRequestResponse,
-    ApiBearerAuth,
-    ApiBody,
-    ApiCreatedResponse,
-    ApiForbiddenResponse,
-    ApiInternalServerErrorResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiParam,
-    ApiTags,
-} from '@nestjs/swagger';
-import { PaginationOptionsDto } from 'src/post/dto/pagination-options.dto';
-import { Paginated } from 'src/post/dto/paginated';
-import { ApiPaginatedResponse } from 'src/post/dto/api-paginated-response';
-import { FileUploadDto } from './dto/file-upload.dto';
-import { CurrentUser } from 'src/decorators/user.decorator';
+    ApiUserCreate,
+    ApiUserFindAll,
+    ApiUserFindOne,
+    ApiUserRemove,
+    ApiUserUpdate,
+    ApiUserUploadAvatar,
+} from './decorators/api-user.decorator';
 
 @ApiBearerAuth()
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
-    @ApiOperation({ summary: 'Create user' })
-    @ApiBody({ type: CreateUserDto })
-    @ApiCreatedResponse({ type: UserEntity })
-    @ApiBadRequestResponse({ description: 'User already exists' })
+    @ApiUserCreate()
     @Roles(Role.ADMIN)
     @UseGuards(RolesGuard)
     @Post()
@@ -57,8 +46,7 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
-    @ApiOperation({ summary: 'Get all users' })
-    @ApiPaginatedResponse(UserEntity, 'Paginated list of users')
+    @ApiUserFindAll()
     @Get()
     findAll(
         @Query() paginationOptions: PaginationOptionsDto,
@@ -66,22 +54,13 @@ export class UserController {
         return this.userService.findAll(paginationOptions);
     }
 
-    @ApiOperation({ summary: 'Get user by id' })
-    @ApiParam({
-        name: 'id',
-        description: 'user id',
-    })
-    @ApiOkResponse({ type: UserEntity })
+    @ApiUserFindOne()
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: number): Promise<UserEntity> {
         return this.userService.findOne(id);
     }
 
-    @ApiOperation({ summary: 'Upload user avatar' })
-    @ApiBody({ type: FileUploadDto })
-    @ApiCreatedResponse({ type: UserEntity })
-    @ApiBadRequestResponse({ description: 'Invalid file' })
-    @ApiInternalServerErrorResponse({ description: 'Failed to delete file' })
+    @ApiUserUploadAvatar()
     @UseInterceptors(FileInterceptor('avatar', multerOptions))
     @Patch('avatar')
     uploadAvatar(
@@ -91,15 +70,7 @@ export class UserController {
         return this.userService.uploadAvatar(user, avatar);
     }
 
-    @ApiOperation({ summary: 'Update user' })
-    @ApiParam({
-        name: 'id',
-        description: 'user id',
-    })
-    @ApiBody({ type: CreateUserDto })
-    @ApiOkResponse({ type: UserEntity })
-    @ApiBadRequestResponse({ description: 'User already exists' })
-    @ApiForbiddenResponse({ description: 'No permission to update user' })
+    @ApiUserUpdate()
     @Patch(':id')
     update(
         @CurrentUser() user: User,
@@ -109,13 +80,7 @@ export class UserController {
         return this.userService.update(id, user, updateUserDto);
     }
 
-    @ApiOperation({ summary: 'Delete user' })
-    @ApiParam({
-        name: 'id',
-        description: 'user id',
-    })
-    @ApiOkResponse({ type: UserEntity })
-    @ApiForbiddenResponse({ description: 'No permission to update user' })
+    @ApiUserRemove()
     @Delete(':id')
     remove(
         @CurrentUser() user: User,

@@ -4,18 +4,17 @@ import {
     Injectable,
     InternalServerErrorException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { Prisma, Role, User } from '@prisma/client';
 import { plainToInstance } from 'class-transformer';
-import { UserEntity } from './dto/entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 import fs from 'fs/promises';
 import path from 'path';
-import { PaginationOptionsDto } from 'src/post/dto/pagination-options.dto';
-import { Paginated } from 'src/post/dto/paginated';
+import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.dto';
+import { Paginated } from 'src/shared/pagination/paginated';
 
 @Injectable()
 export class UserService {

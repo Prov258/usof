@@ -3,11 +3,10 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { PaginationOptionsDto } from 'src/post/dto/pagination-options.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Paginated } from 'src/post/dto/paginated';
+import { Paginated } from 'src/shared/pagination/paginated';
 import { Category, Post, Prisma } from '@prisma/client';
 
 @Injectable()
@@ -155,5 +154,29 @@ export class CategoryService {
                 id,
             },
         });
+    }
+
+    async validateCategories(titles: string[]) {
+        const categories = await this.prisma.category.findMany({
+            where: {
+                title: {
+                    in: titles,
+                },
+            },
+            select: {
+                title: true,
+            },
+        });
+
+        const categoryTitles = new Set(categories.map((c) => c.title));
+        const missingCategories = titles.filter(
+            (title) => !categoryTitles.has(title),
+        );
+
+        if (missingCategories.length > 0) {
+            throw new NotFoundException(
+                `Categories not found [${missingCategories.join(', ')}]`,
+            );
+        }
     }
 }

@@ -2,13 +2,16 @@ import {
     BadRequestException,
     ForbiddenException,
     Injectable,
-    NotFoundException,
 } from '@nestjs/common';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import {
+    CreatePostDto,
+    UpdatePostDto,
+    SortingOptionsDto,
+    FilteringOptionsDto,
+} from './dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PaginationOptionsDto } from './dto/pagination-options.dto';
-import { Paginated } from './dto/paginated';
+import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.dto';
+import { Paginated } from 'src/shared/pagination/paginated';
 import {
     Category,
     Comment,
@@ -22,28 +25,18 @@ import {
     User,
 } from '@prisma/client';
 import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
-import { CreateLikeDto } from './dto/create-like.dto';
-import { SortingOptionsDto } from './dto/sorting-options.dto';
-import { FilteringOptionsDto } from './dto/filtering-options.dto';
+import { CreateLikeDto } from 'src/like/dto/create-like.dto';
+import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class PostService {
-    constructor(private prisma: PrismaService) {}
+    constructor(
+        private prisma: PrismaService,
+        private categorySevice: CategoryService,
+    ) {}
 
     async create(user: User, createPostDto: CreatePostDto): Promise<Post> {
-        for (let title of createPostDto.categories) {
-            const category = await this.prisma.category.findUnique({
-                where: {
-                    title,
-                },
-            });
-
-            if (!category) {
-                throw new NotFoundException(
-                    `Category with title ${title} doesn't exist`,
-                );
-            }
-        }
+        await this.categorySevice.validateCategories(createPostDto.categories);
 
         return await this.prisma.post.create({
             data: {
@@ -379,19 +372,7 @@ export class PostService {
             throw new ForbiddenException('Forbidden to update post');
         }
 
-        for (let title of updatePostDto.categories) {
-            const category = await this.prisma.category.findUnique({
-                where: {
-                    title,
-                },
-            });
-
-            if (!category) {
-                throw new NotFoundException(
-                    `Category with title ${title} doesn't exist`,
-                );
-            }
-        }
+        await this.categorySevice.validateCategories(updatePostDto.categories);
 
         return this.prisma.post.update({
             where: {

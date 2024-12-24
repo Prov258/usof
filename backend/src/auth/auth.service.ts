@@ -2,7 +2,6 @@ import {
     BadRequestException,
     ForbiddenException,
     Injectable,
-    NotFoundException,
     UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
@@ -10,15 +9,13 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { OtpType, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto, LoginResponseDto } from './dto';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Response } from 'express';
-import { LoginResponseDto } from './dto/loginReponse.dto';
-import { UserEntity } from 'src/user/dto/entities/user.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
-import { RefreshResponseDto } from './dto/RefreshReponse.dto';
 
 @Injectable()
 export class AuthService {
