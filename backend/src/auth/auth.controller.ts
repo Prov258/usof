@@ -21,8 +21,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { Public } from 'src/shared/decorators/public.decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { LoginDto } from './dto/login.dto';
-import { RefreshResponseDto } from './dto/RefreshReponse.dto';
+import { RefreshResponseDto } from './dto/refreshReponse.dto';
 import { CurrentUser } from 'src/shared/decorators/user.decorator';
 import { User } from '@prisma/client';
 import {

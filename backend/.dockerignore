@@ -1,0 +1,7 @@
+node_modules
+dist
+.adminjs
+.git
+*.md
+*.log
+Dockerfile
