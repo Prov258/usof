@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { emailVerification, forgotPassword } from '../store/slices/authSlice';
-import FormInput from '../components/FormInput';
+import { emailVerification } from '../../store/slices/authSlice';
+import FormInput from '../../components/form/FormInput';
 
 interface EmailVerificationForm {
     email: string;

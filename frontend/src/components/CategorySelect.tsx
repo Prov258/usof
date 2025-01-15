@@ -1,20 +1,37 @@
 import React from 'react';
-import { useController, Control, Controller } from 'react-hook-form';
+import { Control, Controller } from 'react-hook-form';
 import type { Category } from '../types';
 import Select from 'react-select';
+import { useGetCategoriesQuery } from '../services/categoryApi';
+import Spinner from './Spinner';
 
 interface CategorySelectProps {
-    categories: Category[];
     selectedCategories?: Category[];
     control: Control<any>;
     error?: string;
 }
 
-const CategorySelect = ({
-    categories,
-    control,
-    error,
-}: CategorySelectProps) => {
+const CategorySelect: React.FC<CategorySelectProps> = ({ control, error }) => {
+    const {
+        data: categoriesData,
+        isLoading,
+        isError,
+    } = useGetCategoriesQuery();
+
+    if (isLoading) {
+        return <Spinner />;
+    }
+
+    if (isError) {
+        return (
+            <div className="text-center py-12">
+                <h2 className="text-xl font-semibold text-red-600">
+                    Failed to load categories
+                </h2>
+            </div>
+        );
+    }
+
     return (
         <div>
             <label
@@ -30,14 +47,13 @@ const CategorySelect = ({
                     return (
                         <Select
                             {...field}
-                            options={categories.map((category) => ({
+                            options={categoriesData?.data.map((category) => ({
                                 value: category.title,
                                 label: category.title,
                             }))}
                             isMulti
                             isClearable
                             onChange={(selected) => {
-                                // Transform the selected options to an array of values
                                 field.onChange(
                                     selected
                                         ? selected.map((option) => option.value)
@@ -48,7 +64,7 @@ const CategorySelect = ({
                                 field.value
                                     ? field.value.map((value: string) => ({
                                           value,
-                                          label: value, // Assuming label is the same as value in this example
+                                          label: value,
                                       }))
                                     : []
                             }

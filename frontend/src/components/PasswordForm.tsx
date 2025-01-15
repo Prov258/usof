@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { clearSuccess, updateProfile } from '../store/slices/authSlice';
+import FormInput from './form/FormInput';
 
 interface PasswordForm {
     oldPassword: string;
@@ -31,9 +32,9 @@ const PasswordForm = () => {
     );
 
     const {
-        register: registerPassword,
-        handleSubmit: handlePasswordSubmit,
-        formState: { errors: passwordErrors },
+        register,
+        handleSubmit,
+        formState: { errors },
     } = useForm<PasswordForm>({
         defaultValues: {
             oldPassword: '',
@@ -60,69 +61,28 @@ const PasswordForm = () => {
     };
 
     return (
-        <form
-            onSubmit={handlePasswordSubmit(onPasswordSubmit)}
-            className="space-y-6"
-        >
-            <div>
-                <label
-                    htmlFor="oldPassword"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Current Password
-                </label>
-                <input
-                    type="password"
-                    id="oldPassword"
-                    {...registerPassword('oldPassword')}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                {passwordErrors.oldPassword && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {passwordErrors.oldPassword.message}
-                    </p>
-                )}
-            </div>
-
-            <div>
-                <label
-                    htmlFor="newPassword"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    New Password
-                </label>
-                <input
-                    type="password"
-                    id="newPassword"
-                    {...registerPassword('newPassword')}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                {passwordErrors.newPassword && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {passwordErrors.newPassword.message}
-                    </p>
-                )}
-            </div>
-
-            <div>
-                <label
-                    htmlFor="confirmPassword"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Confirm New Password
-                </label>
-                <input
-                    type="password"
-                    id="confirmPassword"
-                    {...registerPassword('confirmPassword')}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                {passwordErrors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {passwordErrors.confirmPassword.message}
-                    </p>
-                )}
-            </div>
+        <form onSubmit={handleSubmit(onPasswordSubmit)} className="space-y-6">
+            <FormInput
+                name={'oldPassword'}
+                type={'password'}
+                label={'Current Password'}
+                register={register}
+                errors={errors}
+            />
+            <FormInput
+                name={'newPassword'}
+                type={'password'}
+                label={'New Password'}
+                register={register}
+                errors={errors}
+            />
+            <FormInput
+                name={'confirmPassword'}
+                type={'password'}
+                label={'Confirm New Password'}
+                register={register}
+                errors={errors}
+            />
 
             {error && (
                 <div className="text-sm text-red-600 text-center">{error}</div>

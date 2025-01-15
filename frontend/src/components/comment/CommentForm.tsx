@@ -1,10 +1,8 @@
+import React from 'react';
 import { useForm } from 'react-hook-form';
-import type { Comment } from '../types';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { createComment } from '../store/slices/commentsSlice';
+import { z } from 'zod';
+import { useCreateCommentMutation } from '../../services/commentApi';
 
 interface CommentFormProps {
     postId: number;
@@ -18,7 +16,8 @@ const schema = z.object({
     content: z.string().min(1, 'Content is required'),
 });
 
-const CommentForm = ({ postId }: CommentFormProps) => {
+const CommentForm: React.FC<CommentFormProps> = ({ postId }) => {
+    const [addComment] = useCreateCommentMutation();
     const {
         register,
         handleSubmit,
@@ -27,11 +26,10 @@ const CommentForm = ({ postId }: CommentFormProps) => {
     } = useForm<CommentFormData>({
         resolver: zodResolver(schema),
     });
-    const dispatch = useDispatch();
 
     const onSubmit = async (data: CommentFormData) => {
         try {
-            dispatch(createComment({ ...data, postId }));
+            await addComment({ postId, content: data.content });
             reset();
         } catch (error) {
             console.error('Failed to submit comment:', error);

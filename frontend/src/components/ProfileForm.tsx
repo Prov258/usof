@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { clearSuccess, updateProfile } from '../store/slices/authSlice';
+import FormInput from './form/FormInput';
 
 interface ProfileForm {
     fullName: string;
@@ -26,9 +27,9 @@ const ProfileForm = () => {
     );
 
     const {
-        register: registerProfile,
-        handleSubmit: handleProfileSubmit,
-        formState: { errors: profileErrors },
+        register,
+        handleSubmit,
+        formState: { errors },
     } = useForm<ProfileForm>({
         defaultValues: {
             fullName: user?.fullName || '',
@@ -50,69 +51,28 @@ const ProfileForm = () => {
     };
 
     return (
-        <form
-            onSubmit={handleProfileSubmit(onProfileSubmit)}
-            className="space-y-6"
-        >
-            <div>
-                <label
-                    htmlFor="fullName"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Full Name
-                </label>
-                <input
-                    type="text"
-                    id="fullName"
-                    {...registerProfile('fullName')}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                {profileErrors.fullName && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {profileErrors.fullName.message}
-                    </p>
-                )}
-            </div>
-
-            <div>
-                <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Email
-                </label>
-                <input
-                    type="email"
-                    id="email"
-                    {...registerProfile('email')}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                {profileErrors.email && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {profileErrors.email.message}
-                    </p>
-                )}
-            </div>
-
-            <div>
-                <label
-                    htmlFor="login"
-                    className="block text-sm font-medium text-gray-700"
-                >
-                    Login
-                </label>
-                <input
-                    type="text"
-                    id="login"
-                    {...registerProfile('login')}
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                {profileErrors.login && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {profileErrors.login.message}
-                    </p>
-                )}
-            </div>
+        <form onSubmit={handleSubmit(onProfileSubmit)} className="space-y-6">
+            <FormInput
+                name={'fullName'}
+                type={'text'}
+                label={'Full Name'}
+                register={register}
+                errors={errors}
+            />
+            <FormInput
+                name={'email'}
+                type={'email'}
+                label={'Email'}
+                register={register}
+                errors={errors}
+            />
+            <FormInput
+                name={'login'}
+                type={'text'}
+                label={'Login'}
+                register={register}
+                errors={errors}
+            />
 
             {error && (
                 <div className="text-sm text-red-600 text-center">{error}</div>

@@ -4,8 +4,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { resetPassword } from '../store/slices/authSlice';
-import FormInput from '../components/FormInput';
+import { resetPassword } from '../../store/slices/authSlice';
+import FormInput from '../../components/form/FormInput';
 
 const schema = z
     .object({

@@ -1,37 +1,25 @@
-import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { ThumbsUp, ThumbsDown, Clock } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import type { RootState } from '../store';
-import CommentForm from '../components/CommentForm';
-import CommentList from '../components/CommentList';
-import { fetchPostById } from '../store/slices/postsSlice';
-import { fetchCommentsForPost } from '../store/slices/commentsSlice';
-import VoteButtons from '../components/VoteButtons';
-import Spinner from '../components/Spinner';
+import type { RootState } from '../../store';
+import CommentForm from '../../components/comment/CommentForm';
+import CommentsList from '../../components/comment/CommentsList';
+import VoteButtons from '../../components/form/VoteButtons';
+import Spinner from '../../components/Spinner';
+import { postsApi } from '../../services/postApi';
+import { url } from '../../utils/funcs';
 
 const PostDetail = () => {
     const { id } = useParams<{ id: string }>();
-    const [loading, setLoading] = useState(true);
-    const dispatch = useDispatch();
-    const { currentPost, isLoading } = useSelector(
-        (state: RootState) => state.posts,
-    );
+    const { data: post, isLoading, isError } = postsApi.useGetPostByIdQuery(id);
     const { user } = useSelector((state: RootState) => state.auth);
-    const { comments } = useSelector((state: RootState) => state.comments);
 
-    useEffect(() => {
-        dispatch(fetchCommentsForPost(id));
-        dispatch(fetchPostById(id));
-        setLoading(false);
-    }, [id]);
-
-    if (loading || isLoading) {
+    if (isLoading) {
         return <Spinner />;
     }
 
-    if (!currentPost) {
+    if (!post || isError) {
         return (
             <div className="text-center py-12">
                 <h2 className="text-2xl font-bold text-gray-900">
@@ -47,26 +35,24 @@ const PostDetail = () => {
                 <div className="flex space-x-4">
                     <VoteButtons
                         type={'post'}
-                        id={currentPost.id}
-                        rating={currentPost.rating}
+                        id={post.id}
+                        rating={post.rating}
                         userVote={
-                            currentPost?.likes?.length
-                                ? currentPost.likes[0]?.type
-                                : null
+                            post?.likes?.length ? post.likes[0]?.type : null
                         }
                     />
 
                     <div className="flex-1">
                         <h1 className="text-3xl font-bold text-gray-900 mb-4">
-                            {currentPost.title}
+                            {post.title}
                         </h1>
 
                         <div className="prose max-w-none mb-6">
-                            {currentPost.content}
+                            {post.content}
                         </div>
 
                         <div className="flex items-center space-x-4 mb-4">
-                            {currentPost.categories.map(({ category }) => (
+                            {post.categories.map(({ category }) => (
                                 <span
                                     key={category.id}
                                     className="px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700"
@@ -79,17 +65,17 @@ const PostDetail = () => {
                         <div className="flex items-center justify-between text-sm text-gray-500">
                             <div className="flex items-center space-x-2">
                                 <img
-                                    src={`http://localhost:3000${currentPost.author.avatar}`}
-                                    alt={currentPost.author.login}
+                                    src={url(post.author.avatar)}
+                                    alt={post.author.login}
                                     className="h-8 w-8 rounded-full"
                                 />
-                                <span>{currentPost.author.login}</span>
+                                <span>{post.author.login}</span>
                             </div>
                             <div className="flex items-center space-x-1">
                                 <Clock className="h-4 w-4" />
                                 <span>
                                     {formatDistanceToNow(
-                                        new Date(currentPost.createdAt),
+                                        new Date(post.createdAt),
                                     )}{' '}
                                     ago
                                 </span>
@@ -105,16 +91,11 @@ const PostDetail = () => {
                         <h3 className="text-xl font-bold text-gray-900 mb-4">
                             Your Answer
                         </h3>
-                        <CommentForm postId={currentPost.id} />
+                        <CommentForm postId={post.id} />
                     </div>
                 )}
 
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    {comments.length}{' '}
-                    {comments.length === 1 ? 'Answer' : 'Answers'}
-                </h2>
-
-                <CommentList comments={comments} />
+                <CommentsList postId={post.id} />
             </div>
         </div>
     );

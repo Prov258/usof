@@ -60,10 +60,31 @@ export interface AuthState {
 }
 
 export interface PostFiltersType {
+    page?: number;
+    limit?: number;
     title?: string;
     categories?: number[];
-    sortBy?: 'rating' | 'createdAt';
-    sortOrder?: 'asc' | 'desc';
     status?: 'all' | 'active' | 'inactive';
     authorId?: number;
+    sortBy?: 'rating' | 'createdAt';
+    sortOrder?: 'asc' | 'desc';
+}
+
+export interface PaginatedMetadata {
+    page: number;
+    limit: number;
+    itemCount: number;
+    pageCount: number;
+    prev: number;
+    next: number;
+}
+
+export interface Paginated<T> {
+    data: T[];
+    meta: PaginatedMetadata;
+}
+
+export interface VoteQuery {
+    id: number;
+    type: 'LIKE' | 'DISLIKE' | null;
 }

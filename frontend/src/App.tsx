@@ -2,17 +2,17 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import PostDetail from './pages/PostDetail';
-import CreatePost from './pages/CreatePost';
-import Profile from './pages/Profile/index';
-import ForgotPassword from './pages/ForgotPassword';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import PostDetail from './pages/post/PostDetail';
+import CreatePost from './pages/post/CreatePost';
+import Profile from './pages/profile/Profile';
+import ForgotPassword from './pages/auth/ForgotPassword';
 import NoPage from './pages/NoPage';
-import PasswordReset from './pages/PasswordReset';
-import EditPost from './pages/EditPost';
+import PasswordReset from './pages/auth/PasswordReset';
+import EditPost from './pages/post/EditPost';
 import PrivateRoute from './components/PrivateRoute';
-import EmailVerification from './pages/EmailVerification';
+import EmailVerification from './pages/auth/EmailVerification';
 
 const App = () => {
     return (
@@ -21,14 +21,7 @@ const App = () => {
                 <Navbar />
                 <main className="container mx-auto px-4 py-8">
                     <Routes>
-                        <Route
-                            path="/"
-                            element={
-                                <PrivateRoute>
-                                    <Home />
-                                </PrivateRoute>
-                            }
-                        />
+                        <Route path="/" element={<Home />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route
@@ -43,14 +36,7 @@ const App = () => {
                             path="/email-verification"
                             element={<EmailVerification />}
                         />
-                        <Route
-                            path="/posts/:id"
-                            element={
-                                <PrivateRoute>
-                                    <PostDetail />
-                                </PrivateRoute>
-                            }
-                        />
+                        <Route path="/posts/:id" element={<PostDetail />} />
                         <Route
                             path="/create-post"
                             element={

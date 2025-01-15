@@ -1,55 +1,80 @@
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../store/slices/authSlice';
-import type { RootState } from '../store';
+import { register as registerUser } from '../../store/slices/authSlice';
+import type { RootState } from '../../store';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import FormInput from '../components/FormInput';
+import FormInput from '../../components/form/FormInput';
 import { useEffect } from 'react';
 
-interface LoginForm {
+interface RegisterForm {
+    login: string;
     email: string;
     password: string;
+    confirmPassword: string;
+    fullName: string;
 }
 
-const schema = z.object({
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(1, 'Password is required'),
-});
+const schema = z
+    .object({
+        email: z.string().email('Invalid email address'),
+        fullName: z.string().min(1, 'Full Name is required'),
+        login: z.string().min(1, 'Login is required'),
+        password: z.string().min(1, 'Password is required'),
+        confirmPassword: z.string().min(1, 'Password Confirm is required'),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        path: ['confirmPassword'],
+        message: 'Passwords do not match',
+    });
 
-const Login = () => {
+const Register = () => {
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginForm>({
+    } = useForm<RegisterForm>({
         resolver: zodResolver(schema),
     });
+
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { user, isLoading, error } = useSelector(
+    const { success, user, isLoading, error } = useSelector(
         (state: RootState) => state.auth,
     );
 
-    const onSubmit = async (data: LoginForm) => {
-        dispatch(login(data));
+    const onSubmit = async (data: RegisterForm) => {
+        dispatch(registerUser(data));
     };
 
     useEffect(() => {
-        if (user) {
-            navigate('/');
-        }
-    }, [navigate, user]);
+        if (success) navigate('/login');
+        if (user) navigate('/');
+    }, [navigate, user, success]);
 
     return (
         <div className="max-w-md mx-auto mt-20">
             <div className="bg-white p-8 rounded-lg shadow-md">
                 <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
-                    Sign In
+                    Sign Up
                 </h2>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    <FormInput
+                        name={'login'}
+                        type={'text'}
+                        label={'Login'}
+                        register={register}
+                        errors={errors}
+                    />
+                    <FormInput
+                        name={'fullName'}
+                        type={'text'}
+                        label={'Full Name'}
+                        register={register}
+                        errors={errors}
+                    />
                     <FormInput
                         name={'email'}
                         type={'email'}
@@ -64,6 +89,13 @@ const Login = () => {
                         register={register}
                         errors={errors}
                     />
+                    <FormInput
+                        name={'confirmPassword'}
+                        type={'password'}
+                        label={'Confirm Password'}
+                        register={register}
+                        errors={errors}
+                    />
 
                     {error && (
                         <div className="text-sm text-red-600 text-center">
@@ -71,43 +103,23 @@ const Login = () => {
                         </div>
                     )}
 
-                    <div className="text-sm">
-                        <Link
-                            to="/forgot-password"
-                            className="font-semibold text-indigo-600 hover:text-indigo-500"
-                        >
-                            Forgot password?
-                        </Link>
-                    </div>
-
                     <button
                         type="submit"
                         disabled={isLoading}
                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                     >
-                        {isLoading ? 'Signing in...' : 'Sign in'}
+                        {isLoading ? 'Creating account...' : 'Create account'}
                     </button>
                 </form>
 
                 <div className="mt-6 text-center">
                     <p className="text-sm text-gray-600">
-                        Don't have an account?{' '}
+                        Already have an account?{' '}
                         <Link
-                            to="/register"
+                            to="/login"
                             className="font-medium text-indigo-600 hover:text-indigo-500"
                         >
-                            Sign up
-                        </Link>
-                    </p>
-                </div>
-                <div className="mt-3 text-center">
-                    <p className="text-sm text-gray-600">
-                        Didn't receive verification email?{' '}
-                        <Link
-                            to="/email-verification"
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
-                        >
-                            Send again
+                            Sign in
                         </Link>
                     </p>
                 </div>
@@ -116,4 +128,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;

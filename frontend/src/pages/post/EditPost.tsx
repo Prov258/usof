@@ -1,21 +1,19 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Controller, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import { useForm } from 'react-hook-form';
+import { useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
-import {
-    clearSuccess,
-    fetchPost,
-    fetchPostById,
-    updatePost,
-} from '../store/slices/postsSlice';
-import CategorySelect from '../components/CategorySelect';
-import type { RootState } from '../store';
+import CategorySelect from '../../components/CategorySelect';
+import type { RootState } from '../../store';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { fetchCategories } from '../store/slices/categoriesSlice';
-import Spinner from '../components/Spinner';
-import Select from 'react-select';
+import Spinner from '../../components/Spinner';
+import {
+    useGetPostByIdQuery,
+    useUpdatePostMutation,
+} from '../../services/postApi';
+import FormArea from '../../components/form/FormArea';
+import FormInput from '../../components/form/FormInput';
 
 interface EditPostForm {
     title: string;
@@ -30,15 +28,14 @@ const schema = z.object({
     categories: z.array(z.any()),
 });
 
-export default function EditPost() {
+const EditPost = () => {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const { currentPost, isLoading, error, success } = useSelector(
-        (state: RootState) => state.posts,
-    );
-    const { categories } = useSelector((state: RootState) => state.categories);
     const { user } = useSelector((state: RootState) => state.auth);
+    const [updatePost, { isLoading: isUpdating, isSuccess, error }] =
+        useUpdatePostMutation();
+    const { data: currentPost, isLoading } = useGetPostByIdQuery(id);
+
+    const navigate = useNavigate();
 
     const {
         register,
@@ -51,16 +48,6 @@ export default function EditPost() {
     });
 
     useEffect(() => {
-        dispatch(fetchCategories());
-    }, [dispatch]);
-
-    useEffect(() => {
-        if (id) {
-            dispatch(fetchPostById(parseInt(id)));
-        }
-    }, [dispatch, id]);
-
-    useEffect(() => {
         if (currentPost) {
             reset({
                 title: currentPost.title,
@@ -71,11 +58,14 @@ export default function EditPost() {
     }, [currentPost, reset]);
 
     useEffect(() => {
-        if (success) {
+        if (isSuccess) {
             toast.success('Edited post successfully!');
-            dispatch(clearSuccess());
         }
-    }, [dispatch, success]);
+    }, [isSuccess]);
+
+    const onSubmit = async (data: EditPostForm) => {
+        await updatePost({ id: currentPost.id, ...data });
+    };
 
     if (isLoading) {
         return <Spinner />;
@@ -91,15 +81,6 @@ export default function EditPost() {
         );
     }
 
-    const onSubmit = async (data: EditPostForm) => {
-        await dispatch(
-            updatePost({
-                id: currentPost.id,
-                ...data,
-            }),
-        );
-    };
-
     return (
         <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-lg shadow-md p-6">
@@ -108,48 +89,26 @@ export default function EditPost() {
                 </h1>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <div>
-                        <label
-                            htmlFor="title"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Title
-                        </label>
-                        <input
-                            type="text"
-                            id="title"
-                            {...register('title')}
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        />
-                        {errors.title && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.title.message}
-                            </p>
-                        )}
-                    </div>
+                    <FormInput
+                        name={'title'}
+                        type={'text'}
+                        label={'Title'}
+                        register={register}
+                        errors={errors}
+                    />
 
-                    <div>
-                        <label
-                            htmlFor="content"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Content
-                        </label>
-                        <textarea
-                            id="content"
-                            rows={10}
-                            {...register('content')}
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        />
-                        {errors.content && (
-                            <p className="mt-1 text-sm text-red-600">
-                                {errors.content.message}
-                            </p>
-                        )}
-                    </div>
+                    <FormArea
+                        name={'content'}
+                        label={'Content'}
+                        rows={10}
+                        placeholder={
+                            'Include all the information someone would need to answer your question'
+                        }
+                        register={register}
+                        errors={errors}
+                    />
 
                     <CategorySelect
-                        categories={categories}
                         selectedCategories={currentPost.categories}
                         control={control}
                         error={errors.categories?.message}
@@ -174,7 +133,7 @@ export default function EditPost() {
 
                     {error && (
                         <div className="text-sm text-red-600 text-center">
-                            {error}
+                            {error.data}
                         </div>
                     )}
 
@@ -188,14 +147,16 @@ export default function EditPost() {
                         </button>
                         <button
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isUpdating}
                             className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                         >
-                            {isLoading ? 'Saving...' : 'Save Changes'}
+                            {isUpdating ? 'Saving...' : 'Save Changes'}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     );
-}
+};
+
+export default EditPost;

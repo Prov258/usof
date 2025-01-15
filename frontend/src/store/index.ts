@@ -1,16 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
-import postsReducer from './slices/postsSlice';
-import categoriesReducer from './slices/categoriesSlice';
-import commentsReducer from './slices/commentsSlice';
+import { postsApi } from '../services/postApi';
+import { commentsApi } from '../services/commentApi';
+import { categoriesApi } from '../services/categoryApi';
 
 export const store = configureStore({
     reducer: {
         auth: authReducer,
-        posts: postsReducer,
-        categories: categoriesReducer,
-        comments: commentsReducer,
+        [postsApi.reducerPath]: postsApi.reducer,
+        [commentsApi.reducerPath]: commentsApi.reducer,
+        [categoriesApi.reducerPath]: categoriesApi.reducer,
     },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware()
+            .concat(postsApi.middleware)
+            .concat(commentsApi.middleware)
+            .concat(categoriesApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

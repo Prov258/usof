@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Search, PlusSquare, User, LogOut } from 'lucide-react';
-import { clearUserState, logout } from '../store/slices/authSlice';
+import { PlusSquare, User, LogOut } from 'lucide-react';
+import { clearUserState } from '../store/slices/authSlice';
 import type { RootState } from '../store';
+import { url } from '../utils/funcs';
 
 const Navbar = () => {
     const dispatch = useDispatch();
@@ -24,17 +25,6 @@ const Navbar = () => {
                         </div>
                     </Link>
 
-                    {/* <div className="flex-1 max-w-2xl mx-8">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search questions..."
-                className="w-full px-4 py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:border-indigo-500"
-              />
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-            </div>
-          </div> */}
-
                     <div className="flex items-center space-x-4">
                         {user ? (
                             <>
@@ -51,7 +41,7 @@ const Navbar = () => {
                                 >
                                     {user.avatar ? (
                                         <img
-                                            src={`http://localhost:3000${user.avatar}`}
+                                            src={url(user.avatar)}
                                             alt={user.login}
                                             className="h-8 w-8 rounded-full"
                                         />

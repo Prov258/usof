@@ -1,4 +1,4 @@
-import { Fragment, useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PaginationProps {
@@ -7,11 +7,11 @@ interface PaginationProps {
     onPageChange: (page: number) => void;
 }
 
-export default function Pagination({
+const Pagination: React.FC<PaginationProps> = ({
     currentPage,
     totalPages,
     onPageChange,
-}: PaginationProps) {
+}) => {
     const pages = useMemo(() => {
         const items: (number | string)[] = [];
         if (totalPages <= 7) {
@@ -92,4 +92,6 @@ export default function Pagination({
             </div>
         </nav>
     );
-}
+};
+
+export default Pagination;

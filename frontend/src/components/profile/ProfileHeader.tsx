@@ -1,16 +1,18 @@
+import React from 'react';
 import { User } from '../../types';
 import { ThumbsUp } from 'lucide-react';
+import { url } from '../../utils/funcs';
 
 interface ProfileHeaderProps {
     user: User;
 }
 
-export default function ProfileHeader({ user }: ProfileHeaderProps) {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
     return (
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="flex items-start space-x-6">
                 <img
-                    src={`http://localhost:3000${user.avatar}`}
+                    src={url(user.avatar)}
                     alt={user.login}
                     className="h-24 w-24 rounded-full"
                 />
@@ -41,4 +43,6 @@ export default function ProfileHeader({ user }: ProfileHeaderProps) {
             </div>
         </div>
     );
-}
+};
+
+export default ProfileHeader;

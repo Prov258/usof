@@ -1,16 +1,12 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { createPost } from '../store/slices/postsSlice';
-import { fetchCategories } from '../store/slices/categoriesSlice';
-import { clearSuccess } from '../store/slices/postsSlice';
-import CategorySelect from '../components/CategorySelect';
-import type { RootState } from '../store';
+import CategorySelect from '../../components/CategorySelect';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import FormInput from '../components/FormInput';
-import FormArea from '../components/FormArea';
+import FormInput from '../../components/form/FormInput';
+import FormArea from '../../components/form/FormArea';
+import { useCreatePostMutation } from '../../services/postApi';
 
 interface CreatePostForm {
     title: string;
@@ -25,6 +21,8 @@ const schema = z.object({
 });
 
 const CreatePost = () => {
+    const [createPost, { isLoading, isSuccess, error }] =
+        useCreatePostMutation();
     const {
         register,
         handleSubmit,
@@ -34,26 +32,16 @@ const CreatePost = () => {
         resolver: zodResolver(schema),
     });
 
-    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { categories } = useSelector((state: RootState) => state.categories);
-    const { isLoading, success, error } = useSelector(
-        (state: RootState) => state.posts,
-    );
 
     useEffect(() => {
-        dispatch(fetchCategories());
-    }, [dispatch]);
-
-    useEffect(() => {
-        if (success) {
-            dispatch(clearSuccess());
+        if (isSuccess) {
             navigate('/');
         }
-    }, [dispatch, success]);
+    }, [isSuccess]);
 
     const onSubmit = async (data: CreatePostForm) => {
-        dispatch(createPost(data));
+        await createPost(data);
     };
 
     return (
@@ -82,14 +70,13 @@ const CreatePost = () => {
                         errors={errors}
                     />
                     <CategorySelect
-                        categories={categories}
                         control={control}
                         error={errors.categories?.message}
                     />
 
                     {error && (
                         <div className="text-sm text-red-600 text-center">
-                            {error}
+                            {error.data}
                         </div>
                     )}
 

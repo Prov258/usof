@@ -44,9 +44,8 @@ export const logout = createAsyncThunk(
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             };
-            console.log(config);
+
             await ax.post(`http://localhost:3000/api/auth/logout`, {}, config);
-            console.log('axios2');
         } catch (error) {
             if (error.response && error.response.data.message) {
                 return rejectWithValue(error.response.data.message);
@@ -185,7 +184,7 @@ export const uploadAvatar = createAsyncThunk(
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             };
-            console.log(data);
+
             const response = await axios.patch(`/users/avatar`, data, config);
             return response.data;
         } catch (error) {

@@ -2,12 +2,12 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
-import ProfileHeader from './ProfileHeader';
-import ProfileTabs from './ProfileTabs';
-import UserPosts from './UserPosts';
+import ProfileHeader from '../../components/profile/ProfileHeader';
+import ProfileTabs from '../../components/profile/ProfileTabs';
+import ProfilePosts from './ProfilePosts';
 import ProfileSettings from './ProfileSettings';
 
-export default function Profile() {
+const Profile = () => {
     const { user } = useSelector((state: RootState) => state.auth);
     const [activeTab, setActiveTab] = React.useState<'posts' | 'settings'>(
         'posts',
@@ -25,11 +25,13 @@ export default function Profile() {
 
             <div className="mt-6">
                 {activeTab === 'posts' ? (
-                    <UserPosts userId={user.id} />
+                    <ProfilePosts userId={user.id} />
                 ) : (
                     <ProfileSettings />
                 )}
             </div>
         </div>
     );
-}
+};
+
+export default Profile;
