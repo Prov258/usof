@@ -1,26 +1,27 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { clearSuccess, uploadAvatar } from '../store/slices/authSlice';
+import { useAppDispatch } from '../hooks/redux';
 
 interface AvatarForm {
-    avatar: string;
+    avatar: FileList;
 }
 
 const schema = z.object({
-    avatar: z.any(),
+    avatar: z
+        .instanceof(FileList)
+        .refine((files) => files.length > 0, 'Avatar is required'),
 });
 
 const AvatarForm = () => {
-    const dispatch = useDispatch();
-    const { user, isLoading, success, error } = useSelector(
+    const { isLoading, success, error } = useSelector(
         (state: RootState) => state.auth,
     );
-
     const {
         register,
         handleSubmit,
@@ -28,6 +29,7 @@ const AvatarForm = () => {
     } = useForm<AvatarForm>({
         resolver: zodResolver(schema),
     });
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (success) {
@@ -36,7 +38,7 @@ const AvatarForm = () => {
         }
     }, [dispatch, success]);
 
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: AvatarForm) => {
         const formData = new FormData();
         formData.append('avatar', data.avatar[0]);
 

@@ -2,7 +2,6 @@ import {
     BadRequestException,
     ForbiddenException,
     Injectable,
-    UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
@@ -78,6 +77,7 @@ export class AuthService {
                 refreshToken: null,
             },
         });
+
         res.clearCookie('refresh_token');
     }
 
@@ -291,7 +291,7 @@ export class AuthService {
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
-            throw new UnauthorizedException('Invalid password');
+            throw new BadRequestException('Invalid password');
         }
 
         return user;

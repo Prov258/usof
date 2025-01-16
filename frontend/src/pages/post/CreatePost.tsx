@@ -11,7 +11,7 @@ import { useCreatePostMutation } from '../../services/postApi';
 interface CreatePostForm {
     title: string;
     content: string;
-    categories: number[];
+    categories: string[];
 }
 
 const schema = z.object({
@@ -38,7 +38,7 @@ const CreatePost = () => {
         if (isSuccess) {
             navigate('/');
         }
-    }, [isSuccess]);
+    }, [isSuccess, navigate]);
 
     const onSubmit = async (data: CreatePostForm) => {
         await createPost(data);

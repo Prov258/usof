@@ -49,9 +49,7 @@ export const PostsList: React.FC<PostsListsProps> = ({
                             type={'post'}
                             id={post.id}
                             rating={post.rating}
-                            userVote={
-                                post?.likes?.length ? post.likes[0]?.type : null
-                            }
+                            userVote={post?.likes}
                         />
                         <div className="flex-1">
                             <div className="flex justify-between items-start">
@@ -78,7 +76,7 @@ export const PostsList: React.FC<PostsListsProps> = ({
 
                             <div className="mt-4 flex items-center space-x-4">
                                 <div className="flex items-center space-x-2">
-                                    {post.categories.map(({ category }) => (
+                                    {post.categories.map((category) => (
                                         <span
                                             key={category.id}
                                             className="px-2 py-1 rounded-full text-sm bg-gray-100 text-gray-700"

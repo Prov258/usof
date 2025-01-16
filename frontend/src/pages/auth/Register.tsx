@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { register as registerUser } from '../../store/slices/authSlice';
 import type { RootState } from '../../store';
@@ -7,8 +7,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../../components/form/FormInput';
 import { useEffect } from 'react';
+import { useAppDispatch } from '../../hooks/redux';
 
-interface RegisterForm {
+export interface RegisterForm {
     login: string;
     email: string;
     password: string;
@@ -30,6 +31,9 @@ const schema = z
     });
 
 const Register = () => {
+    const { success, user, isLoading, error } = useSelector(
+        (state: RootState) => state.auth,
+    );
     const {
         register,
         handleSubmit,
@@ -37,12 +41,8 @@ const Register = () => {
     } = useForm<RegisterForm>({
         resolver: zodResolver(schema),
     });
-
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
-    const { success, user, isLoading, error } = useSelector(
-        (state: RootState) => state.auth,
-    );
 
     const onSubmit = async (data: RegisterForm) => {
         dispatch(registerUser(data));

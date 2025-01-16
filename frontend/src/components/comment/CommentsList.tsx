@@ -47,11 +47,7 @@ const CommentsList: React.FC<CommentsListProps> = ({ postId }) => {
                             type={'comment'}
                             id={comment.id}
                             rating={comment.rating}
-                            userVote={
-                                comment?.likes?.length
-                                    ? comment.likes[0]?.type
-                                    : null
-                            }
+                            userVote={comment?.likes}
                         />
 
                         <div className="flex-1">

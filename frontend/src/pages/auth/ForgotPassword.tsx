@@ -1,13 +1,15 @@
 import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { forgotPassword } from '../../store/slices/authSlice';
 import FormInput from '../../components/form/FormInput';
+import { useAppDispatch } from '../../hooks/redux';
+import { RootState } from '../../store';
 
-interface ForgotPasswordForm {
+export interface ForgotPasswordForm {
     email: string;
 }
 
@@ -17,9 +19,8 @@ const schema = z.object({
 
 const ForgotPassword = () => {
     const { success, isLoading, user, error } = useSelector(
-        (state) => state.auth,
+        (state: RootState) => state.auth,
     );
-    const dispatch = useDispatch();
     const {
         register,
         handleSubmit,
@@ -27,6 +28,7 @@ const ForgotPassword = () => {
     } = useForm<ForgotPasswordForm>({
         resolver: zodResolver(schema),
     });
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -36,7 +38,7 @@ const ForgotPassword = () => {
     }, [navigate, user]);
 
     const onSubmit = (data: ForgotPasswordForm) => {
-        dispatch(forgotPassword(data.email));
+        dispatch(forgotPassword(data));
     };
 
     return (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
@@ -14,9 +14,11 @@ const Profile = () => {
     );
     const navigate = useNavigate();
 
-    if (!user) {
-        navigate('/login');
-    }
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        }
+    }, [navigate, user]);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

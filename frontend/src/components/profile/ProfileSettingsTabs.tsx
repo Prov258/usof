@@ -1,10 +1,11 @@
 import React from 'react';
-import { FileText, Settings } from 'lucide-react';
 import Tabs from '../tabs/Tabs';
 
+type TabKey = 'profile' | 'password' | 'avatar';
+
 interface ProfileTabsProps {
-    activeTab: 'profile' | 'password' | 'avatar';
-    onTabChange: (tab: 'profile' | 'password' | 'avatar') => void;
+    activeTab: TabKey;
+    onTabChange: (tab: TabKey) => void;
 }
 
 const tabs = [
@@ -29,7 +30,13 @@ const ProfileSettingsTabs: React.FC<ProfileTabsProps> = ({
     activeTab,
     onTabChange,
 }) => {
-    return <Tabs tabs={tabs} activeTab={activeTab} onTabChange={onTabChange} />;
+    return (
+        <Tabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={(tab) => onTabChange(tab as TabKey)}
+        />
+    );
 };
 
 export default ProfileSettingsTabs;

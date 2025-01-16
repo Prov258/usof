@@ -1,8 +1,13 @@
+import React, { ReactNode } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import { RootState } from '../store';
 
-const PrivateRoute = ({ children }) => {
+interface PrivateRouteProps {
+    children: ReactNode;
+}
+
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     const { user } = useSelector((state: RootState) => state.auth);
 
     if (!user) {

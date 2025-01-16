@@ -28,6 +28,8 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
         // If user clicks the same vote type, remove the vote
         const newVoteType = userVote === voteType ? null : voteType;
 
+        console.log('Voting:', newVoteType);
+
         try {
             if (type === 'post') {
                 await votePost({ id, type: newVoteType });

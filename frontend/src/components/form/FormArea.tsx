@@ -1,4 +1,22 @@
-const FormArea = ({ name, label, rows, placeholder, errors, register }) => {
+import React from 'react';
+
+interface FormAreaProps {
+    name: string;
+    label: string;
+    rows: number;
+    placeholder: string;
+    errors: any;
+    register: any;
+}
+
+const FormArea: React.FC<FormAreaProps> = ({
+    name,
+    label,
+    rows,
+    placeholder,
+    errors,
+    register,
+}) => {
     return (
         <div>
             <label

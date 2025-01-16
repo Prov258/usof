@@ -1,23 +1,18 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { Category, Paginated } from '../types';
+import axiosBaseQuery from '../utils/axiosBaseQuery';
 
 export const categoriesApi = createApi({
     reducerPath: 'categories',
-    baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:3000/api/categories',
-        prepareHeaders: (headers, { getState }) => {
-            const token = getState().auth.token;
-            if (token) {
-                headers.set('Authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery: axiosBaseQuery(),
     tagTypes: ['Category'],
     endpoints: (builder) => ({
         getCategories: builder.query<Paginated<Category>, null>({
-            query: () => '',
-            provideTags: (result) =>
+            query: () => ({
+                url: '/categories',
+                method: 'GET',
+            }),
+            providesTags: (result) =>
                 result ? [{ type: 'Category', id: 'LIST' }] : [],
         }),
     }),

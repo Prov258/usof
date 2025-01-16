@@ -1,12 +1,13 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { clearSuccess, updateProfile } from '../store/slices/authSlice';
 import FormInput from './form/FormInput';
+import { useAppDispatch } from '../hooks/redux';
 
 interface PasswordForm {
     oldPassword: string;
@@ -26,11 +27,9 @@ const passwordSchema = z
     });
 
 const PasswordForm = () => {
-    const dispatch = useDispatch();
     const { user, isLoading, success, error } = useSelector(
         (state: RootState) => state.auth,
     );
-
     const {
         register,
         handleSubmit,
@@ -43,6 +42,7 @@ const PasswordForm = () => {
         },
         resolver: zodResolver(passwordSchema),
     });
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (success) {
@@ -54,7 +54,7 @@ const PasswordForm = () => {
     const onPasswordSubmit = async (data: PasswordForm) => {
         dispatch(
             updateProfile({
-                id: user.id,
+                id: user?.id,
                 password: data.newPassword,
             }),
         );

@@ -1,4 +1,20 @@
-const FormInput = ({ name, type, label, errors, register }) => {
+import React from 'react';
+
+interface FormInputProps {
+    name: string;
+    type: string;
+    label: string;
+    errors: any;
+    register: any;
+}
+
+const FormInput: React.FC<FormInputProps> = ({
+    name,
+    type,
+    label,
+    errors,
+    register,
+}) => {
     return (
         <div>
             <label

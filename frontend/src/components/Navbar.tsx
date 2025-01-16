@@ -1,18 +1,17 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { PlusSquare, User, LogOut } from 'lucide-react';
-import { clearUserState } from '../store/slices/authSlice';
+import { logout } from '../store/slices/authSlice';
 import type { RootState } from '../store';
 import { url } from '../utils/funcs';
+import { useAppDispatch } from '../hooks/redux';
 
 const Navbar = () => {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
     const { user } = useSelector((state: RootState) => state.auth);
+    const dispatch = useAppDispatch();
 
     const handleLogout = async () => {
-        dispatch(clearUserState());
-        navigate('/login');
+        dispatch(logout());
     };
 
     return (

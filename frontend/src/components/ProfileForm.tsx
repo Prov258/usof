@@ -1,14 +1,15 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { clearSuccess, updateProfile } from '../store/slices/authSlice';
 import FormInput from './form/FormInput';
+import { useAppDispatch } from '../hooks/redux';
 
-interface ProfileForm {
+export interface ProfileForm {
     fullName: string;
     email: string;
     login: string;
@@ -21,11 +22,9 @@ const profileSchema = z.object({
 });
 
 const ProfileForm = () => {
-    const dispatch = useDispatch();
     const { user, isLoading, success, error } = useSelector(
         (state: RootState) => state.auth,
     );
-
     const {
         register,
         handleSubmit,
@@ -38,6 +37,7 @@ const ProfileForm = () => {
         },
         resolver: zodResolver(profileSchema),
     });
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         if (success) {
@@ -47,7 +47,7 @@ const ProfileForm = () => {
     }, [dispatch, success]);
 
     const onProfileSubmit = async (data: ProfileForm) => {
-        dispatch(updateProfile({ id: user.id, ...data }));
+        dispatch(updateProfile({ id: user?.id, ...data }));
     };
 
     return (

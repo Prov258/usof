@@ -1,11 +1,18 @@
 import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPassword } from '../../store/slices/authSlice';
 import FormInput from '../../components/form/FormInput';
+import { RootState } from '../../store';
+import { useAppDispatch } from '../../hooks/redux';
+
+export interface PasswordResetForm {
+    password: string;
+    confirmPassword: string;
+}
 
 const schema = z
     .object({
@@ -18,18 +25,18 @@ const schema = z
     });
 
 const PasswordReset = () => {
-    const { token } = useParams();
+    const { token } = useParams<{ token: string }>();
     const { success, isLoading, user, error } = useSelector(
-        (state) => state.auth,
+        (state: RootState) => state.auth,
     );
-    const dispatch = useDispatch();
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm({
+    } = useForm<PasswordResetForm>({
         resolver: zodResolver(schema),
     });
+    const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -38,8 +45,10 @@ const PasswordReset = () => {
         }
     }, [navigate, user]);
 
-    const onSubmit = (data) => {
-        dispatch(resetPassword({ token, password: data.password }));
+    const onSubmit = (data: PasswordResetForm) => {
+        if (token) {
+            dispatch(resetPassword({ token, ...data }));
+        }
     };
 
     return (

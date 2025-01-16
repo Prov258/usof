@@ -52,7 +52,7 @@ const EditPost = () => {
             reset({
                 title: currentPost.title,
                 content: currentPost.content,
-                categories: currentPost.categories.map((c) => c.category.title),
+                categories: currentPost.categories.map((c) => c.title),
             });
         }
     }, [currentPost, reset]);

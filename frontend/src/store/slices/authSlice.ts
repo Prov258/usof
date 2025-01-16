@@ -1,204 +1,184 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../../utils/axios';
-import { AuthState, User } from '../../types';
-import ax from 'axios';
+import api from '../../utils/axios';
+import { AuthState, LoginResponse, User } from '../../types';
+import axios from 'axios';
+import { LoginForm } from '../../pages/auth/Login';
+import { RegisterForm } from '../../pages/auth/Register';
+import { ForgotPasswordForm } from '../../pages/auth/ForgotPassword';
+import { PasswordResetForm } from '../../pages/auth/PasswordReset';
+import { EmailVerificationForm } from '../../pages/auth/EmailVerification';
 
-export const login = createAsyncThunk(
-    'auth/login',
-    async (
-        { email, password }: { email: string; password: string },
-        { rejectWithValue },
-    ) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            const { data } = await axios.post(
-                `/auth/login`,
-                {
-                    email,
-                    password,
-                },
-                config,
+export const login = createAsyncThunk<
+    LoginResponse,
+    LoginForm,
+    {
+        rejectValue: string;
+    }
+>('auth/login', async (data: LoginForm, { rejectWithValue }) => {
+    try {
+        const response = await api.post(`/auth/login`, data);
+
+        return response.data;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            return rejectWithValue(error.response?.data.message);
+        } else {
+            return rejectWithValue(
+                'An unexpected error occurred. Please try again.',
             );
-            return data;
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
-            } else {
-                return rejectWithValue(error.message);
-            }
         }
-    },
-);
+    }
+});
 
-export const logout = createAsyncThunk(
+export const logout = createAsyncThunk<void, void, { rejectValue: string }>(
     'auth/logout',
     async (_, { rejectWithValue }) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            };
-
-            await ax.post(`http://localhost:3000/api/auth/logout`, {}, config);
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
+            await api.post('/auth/logout');
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data.message);
             } else {
-                return rejectWithValue(error.message);
+                return rejectWithValue(
+                    'An unexpected error occurred. Please try again.',
+                );
             }
         }
     },
 );
 
-export const register = createAsyncThunk(
-    'auth/register',
+export const register = createAsyncThunk<
+    void,
+    RegisterForm,
+    { rejectValue: string }
+>('auth/register', async (data: RegisterForm, { rejectWithValue }) => {
+    try {
+        await api.post(`/auth/register`, data);
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            return rejectWithValue(error.response?.data.message);
+        } else {
+            return rejectWithValue(
+                'An unexpected error occurred. Please try again.',
+            );
+        }
+    }
+});
+
+export const forgotPassword = createAsyncThunk<
+    void,
+    ForgotPasswordForm,
+    { rejectValue: string }
+>(
+    'auth/forgotPassword',
+    async (data: ForgotPasswordForm, { rejectWithValue }) => {
+        try {
+            await api.post(`/auth/password-reset`, data);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data.message);
+            } else {
+                return rejectWithValue(
+                    'An unexpected error occurred. Please try again.',
+                );
+            }
+        }
+    },
+);
+
+export const resetPassword = createAsyncThunk<
+    void,
+    PasswordResetForm & { token: string },
+    { rejectValue: string }
+>(
+    'auth/resetPassword',
     async (
-        userData: {
-            login: string;
-            email: string;
-            password: string;
-            fullName: string;
-        },
+        { token, ...data }: PasswordResetForm & { token: string },
         { rejectWithValue },
     ) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            await axios.post(`/auth/register`, userData, config);
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
+            await api.post(`/auth/password-reset/${token}`, { data });
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data.message);
             } else {
-                return rejectWithValue(error.message);
+                return rejectWithValue(
+                    'An unexpected error occurred. Please try again.',
+                );
             }
         }
     },
 );
 
-export const forgotPassword = createAsyncThunk(
-    'auth/forgotPassword',
-    async (email: string, { rejectWithValue }) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            await axios.post(`/auth/password-reset`, { email }, config);
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
-            } else {
-                return rejectWithValue(error.message);
-            }
-        }
-    },
-);
-
-export const resetPassword = createAsyncThunk(
-    'auth/resetPassword',
-    async ({ token, password }, { rejectWithValue }) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            await axios.post(
-                `/auth/password-reset/${token}`,
-                { password },
-                config,
-            );
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
-            } else {
-                return rejectWithValue(error.message);
-            }
-        }
-    },
-);
-
-export const emailVerification = createAsyncThunk(
+export const emailVerification = createAsyncThunk<
+    void,
+    EmailVerificationForm,
+    { rejectValue: string }
+>(
     'auth/emailVerification',
-    async (email: string, { rejectWithValue }) => {
+    async (data: EmailVerificationForm, { rejectWithValue }) => {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            };
-            await axios.post(`/auth/send-verification`, { email }, config);
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
+            await api.post(`/auth/send-verification`, data);
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data.message);
             } else {
-                return rejectWithValue(error.message);
+                return rejectWithValue(
+                    'An unexpected error occurred. Please try again.',
+                );
             }
         }
     },
 );
 
-export const updateProfile = createAsyncThunk(
-    'auth/updateProfile',
-    async (userData: Partial<User>, { rejectWithValue }) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            };
-            const response = await axios.patch(
-                `/users/${userData.id}`,
-                userData,
-                config,
+export const updateProfile = createAsyncThunk<
+    User,
+    Partial<User>,
+    { rejectValue: string }
+>('auth/updateProfile', async (data: Partial<User>, { rejectWithValue }) => {
+    try {
+        const response = await api.patch(`/users/${data.id}`, data);
+
+        return response.data;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            return rejectWithValue(error.response?.data.message);
+        } else {
+            return rejectWithValue(
+                'An unexpected error occurred. Please try again.',
             );
-            return response.data;
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
-            } else {
-                return rejectWithValue(error.message);
-            }
         }
-    },
-);
+    }
+});
 
-export const uploadAvatar = createAsyncThunk(
-    'auth/uploadAvatar',
-    async (data, { rejectWithValue }) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            };
+export const uploadAvatar = createAsyncThunk<
+    User,
+    FormData,
+    { rejectValue: string }
+>('auth/uploadAvatar', async (data: FormData, { rejectWithValue }) => {
+    try {
+        const config = {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        };
 
-            const response = await axios.patch(`/users/avatar`, data, config);
-            return response.data;
-        } catch (error) {
-            if (error.response && error.response.data.message) {
-                return rejectWithValue(error.response.data.message);
-            } else {
-                return rejectWithValue(error.message);
-            }
+        const response = await api.patch(`/users/avatar`, data, config);
+
+        return response.data;
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            return rejectWithValue(error.response?.data.message);
+        } else {
+            return rejectWithValue(
+                'An unexpected error occurred. Please try again.',
+            );
         }
-    },
-);
+    }
+});
 
 const initialState: AuthState = {
-    user: JSON.parse(localStorage.getItem('user') || null),
+    user: JSON.parse(localStorage.getItem('user') || 'null'),
     token: localStorage.getItem('token'),
     isLoading: false,
     error: null,
@@ -255,7 +235,7 @@ const authSlice = createSlice({
             })
             .addCase(logout.rejected, (state, { payload }) => {
                 state.isLoading = false;
-                state.error = payload || 'Login failed';
+                state.error = payload || 'Logout failed';
             })
             .addCase(register.pending, (state) => {
                 state.isLoading = true;
@@ -281,7 +261,7 @@ const authSlice = createSlice({
             })
             .addCase(forgotPassword.rejected, (state, { payload }) => {
                 state.isLoading = false;
-                state.error = payload;
+                state.error = payload || 'Failed to send password reset email';
             })
             .addCase(resetPassword.pending, (state) => {
                 state.isLoading = true;
@@ -294,7 +274,7 @@ const authSlice = createSlice({
             })
             .addCase(resetPassword.rejected, (state, { payload }) => {
                 state.isLoading = false;
-                state.error = payload;
+                state.error = payload || 'Failed to reset password';
             })
             .addCase(emailVerification.pending, (state) => {
                 state.isLoading = true;
@@ -307,7 +287,7 @@ const authSlice = createSlice({
             })
             .addCase(emailVerification.rejected, (state, { payload }) => {
                 state.isLoading = false;
-                state.error = payload;
+                state.error = payload || 'Failed to send email verification';
             })
             .addCase(updateProfile.pending, (state) => {
                 state.isLoading = true;

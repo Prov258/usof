@@ -151,7 +151,11 @@ export class PostService {
         const pageCount = Math.ceil(count / limit);
 
         return {
-            data: posts,
+            data: posts.map((post) => ({
+                ...post,
+                categories: post.categories.map(({ category }) => category),
+                likes: post.likes?.[0]?.type ?? null,
+            })),
             meta: {
                 page,
                 limit,
@@ -163,8 +167,14 @@ export class PostService {
         };
     }
 
-    async findOne(id: number, user?: User): Promise<Post> {
-        return await this.prisma.post.findUnique({
+    async findOne(
+        id: number,
+        user?: User,
+    ): Promise<
+        Post & { categories: Partial<Category>[] } & { likes: LikeType | null }
+    > {
+        // fix this typing mess
+        const post = await this.prisma.post.findUnique({
             where: {
                 id,
             },
@@ -187,6 +197,12 @@ export class PostService {
                     : false,
             },
         });
+
+        return {
+            ...post,
+            categories: post.categories.map((c) => c.category),
+            likes: post.likes?.[0]?.type ?? null,
+        };
     }
 
     async findComments(
@@ -218,7 +234,10 @@ export class PostService {
         const pageCount = Math.ceil(count / limit);
 
         return {
-            data: comments,
+            data: comments.map((comment) => ({
+                ...comment,
+                likes: comment.likes?.[0]?.type ?? null,
+            })),
             meta: {
                 page,
                 limit,

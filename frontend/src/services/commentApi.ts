@@ -1,6 +1,7 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { Comment, Like, Paginated } from '../types';
 import { VoteQuery } from '../types';
+import axiosBaseQuery from '../utils/axiosBaseQuery';
 
 interface CreateCommentQuery {
     postId: number;
@@ -9,20 +10,14 @@ interface CreateCommentQuery {
 
 export const commentsApi = createApi({
     reducerPath: 'comments',
-    baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:3000/api',
-        prepareHeaders: (headers, { getState }) => {
-            const token = getState().auth.token;
-            if (token) {
-                headers.set('Authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery: axiosBaseQuery(),
     tagTypes: ['Comment'],
     endpoints: (builder) => ({
         getComments: builder.query<Paginated<Comment>, number>({
-            query: (postId: number) => `/posts/${postId}/comments`,
+            query: (postId: number) => ({
+                url: `/posts/${postId}/comments`,
+                method: 'GET',
+            }),
             providesTags: (result) =>
                 result ? [{ type: 'Comment', id: 'LIST' }] : [],
         }),

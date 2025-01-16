@@ -62,7 +62,10 @@ export class AuthController {
     @ApiLogout()
     @HttpCode(HttpStatus.NO_CONTENT)
     @Post('logout')
-    logout(@CurrentUser() user: User, @Response() res): Promise<void> {
+    logout(
+        @CurrentUser() user: User,
+        @Response({ passthrough: true }) res,
+    ): Promise<void> {
         return this.authService.logout(user.id, res);
     }
 

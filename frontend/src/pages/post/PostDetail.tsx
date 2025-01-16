@@ -37,9 +37,7 @@ const PostDetail = () => {
                         type={'post'}
                         id={post.id}
                         rating={post.rating}
-                        userVote={
-                            post?.likes?.length ? post.likes[0]?.type : null
-                        }
+                        userVote={post?.likes}
                     />
 
                     <div className="flex-1">
@@ -52,7 +50,7 @@ const PostDetail = () => {
                         </div>
 
                         <div className="flex items-center space-x-4 mb-4">
-                            {post.categories.map(({ category }) => (
+                            {post.categories.map((category) => (
                                 <span
                                     key={category.id}
                                     className="px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-700"

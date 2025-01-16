@@ -1,13 +1,17 @@
 import axios from 'axios';
 import { store } from '../store';
 import { clearUserState, updateCredentials } from '../store/slices/authSlice';
+import { config } from '../config/config';
 
-const authAxios = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+const api = axios.create({
+    baseURL: config.apiUrl,
+    headers: {
+        'Content-Type': 'application/json',
+    },
     withCredentials: true,
 });
 
-authAxios.interceptors.request.use(
+api.interceptors.request.use(
     (config) => {
         const token = store.getState().auth.token;
 
@@ -20,7 +24,7 @@ authAxios.interceptors.request.use(
     (error) => Promise.reject(error),
 );
 
-authAxios.interceptors.response.use(
+api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
@@ -30,7 +34,7 @@ authAxios.interceptors.response.use(
 
             try {
                 const response = await axios.get(`/auth/refresh`, {
-                    baseURL: import.meta.env.VITE_API_URL,
+                    baseURL: config.apiUrl,
                     withCredentials: true,
                 });
                 const { accessToken, user } = response.data;
@@ -38,11 +42,11 @@ authAxios.interceptors.response.use(
                 store.dispatch(updateCredentials({ token: accessToken, user }));
 
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
                 return axios(originalRequest);
             } catch (error) {
-                console.log('error');
                 store.dispatch(clearUserState());
-                // window.location.href = '/login';
+                window.location.href = '/login';
                 return Promise.reject(error);
             }
         }
@@ -51,4 +55,4 @@ authAxios.interceptors.response.use(
     },
 );
 
-export default authAxios;
+export default api;

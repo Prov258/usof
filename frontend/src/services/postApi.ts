@@ -1,6 +1,7 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { Like, Paginated, Post, PostFiltersType } from '../types/index';
 import { VoteQuery } from '../types/index';
+import axiosBaseQuery from '../utils/axiosBaseQuery';
 
 interface PostQuery {
     page: number;
@@ -20,16 +21,7 @@ interface UpdatePostData extends CreatePostData {
 
 export const postsApi = createApi({
     reducerPath: 'posts',
-    baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:3000/api/posts',
-        prepareHeaders: (headers, { getState }) => {
-            const token = getState().auth.token;
-            if (token) {
-                headers.set('Authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery: axiosBaseQuery(),
     tagTypes: ['Post'],
     endpoints: (builder) => ({
         getPosts: builder.query<Paginated<Post>, PostQuery>({
@@ -48,7 +40,10 @@ export const postsApi = createApi({
                         }),
                 });
 
-                return `?${params}`;
+                return {
+                    url: `/posts/?${params}`,
+                    method: 'GET',
+                };
             },
             providesTags: (result) =>
                 result
@@ -65,13 +60,16 @@ export const postsApi = createApi({
                     : [{ type: 'Post', id: 'LIST' }],
         }),
         getPostById: builder.query<Post, string>({
-            query: (id) => `/${id}`,
+            query: (id) => ({
+                url: `/posts/${id}`,
+                method: 'GET',
+            }),
             providesTags: (result, _error, id) =>
                 result ? [{ type: 'Post', id }] : [],
         }),
         createPost: builder.mutation<Post, CreatePostData>({
             query: (newPost) => ({
-                url: '/',
+                url: '/posts',
                 method: 'POST',
                 body: newPost,
             }),
@@ -79,15 +77,17 @@ export const postsApi = createApi({
         }),
         updatePost: builder.mutation<Post, UpdatePostData>({
             query: ({ id, ...post }) => ({
-                url: `/${id}`,
+                url: `/posts/${id}`,
                 method: 'PATCH',
                 body: post,
             }),
-            invalidatesTags: (result, _error, { id }) => [{ type: 'Post', id }],
+            invalidatesTags: (_result, _error, { id }) => [
+                { type: 'Post', id },
+            ],
         }),
         votePost: builder.mutation<Like, VoteQuery>({
             query: ({ id, type }) => ({
-                url: `/${id}/like`,
+                url: `/posts/${id}/like`,
                 method: type === null ? 'DELETE' : 'POST',
                 body: type === null ? undefined : { type },
             }),

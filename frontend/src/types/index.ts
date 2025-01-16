@@ -17,8 +17,7 @@ export interface Post {
     categories: Category[];
     author: User;
     rating: number;
-    userVote?: 'LIKE' | 'DISLIKE' | null;
-    likes?: Like[];
+    likes?: 'LIKE' | 'DISLIKE' | null;
     commentsCount: number;
     createdAt: string;
     updatedAt: string;
@@ -30,8 +29,7 @@ export interface Comment {
     author: User;
     post: Post;
     rating: number;
-    userVote?: 'LIKE' | 'DISLIKE' | null;
-    likes?: Like[];
+    likes?: 'LIKE' | 'DISLIKE' | null;
     createdAt: string;
     updatedAt: string;
 }
@@ -87,4 +85,9 @@ export interface Paginated<T> {
 export interface VoteQuery {
     id: number;
     type: 'LIKE' | 'DISLIKE' | null;
+}
+
+export interface LoginResponse {
+    accessToken: string;
+    user: User;
 }
