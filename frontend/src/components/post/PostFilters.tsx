@@ -1,26 +1,24 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { SlidersHorizontal } from 'lucide-react';
-import { PostFiltersType } from '../types';
-import CategorySelect from './CategorySelect';
-import { SearchBar } from './form/SearchBar';
+import { PostFiltersType } from '../../types';
+import CategorySelect from '../CategorySelect';
+import { SearchBar } from '../form/SearchBar';
 
 interface PostFiltersProps {
+    filters: PostFiltersType;
     onFilterChange: (filters: PostFiltersType) => void;
     onSearch: (value: string) => void;
 }
 
 const PostFilters: React.FC<PostFiltersProps> = ({
+    filters,
     onFilterChange,
     onSearch,
 }) => {
     const [showFilters, setShowFilters] = React.useState(false);
     const { register, control, watch } = useForm<PostFiltersType>({
-        defaultValues: {
-            title: '',
-            sortBy: 'createdAt',
-            sortOrder: 'desc',
-        },
+        defaultValues: filters,
     });
 
     React.useEffect(() => {
@@ -60,6 +58,19 @@ const PostFilters: React.FC<PostFiltersProps> = ({
                         >
                             <option value="rating">rating</option>
                             <option value="createdAt">createdAt</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Sort Order
+                        </label>
+                        <select
+                            {...register('sortOrder')}
+                            className="w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                        >
+                            <option value="desc">Descending</option>
+                            <option value="asc">Ascending</option>
                         </select>
                     </div>
                 </div>

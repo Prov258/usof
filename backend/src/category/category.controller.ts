@@ -20,6 +20,7 @@ import {
     ApiCategoryRemove,
     ApiCategoryUpdate,
 } from './decorators/api-category.decorator';
+import { Public } from 'src/shared/decorators/public.decorator';
 
 @ApiBearerAuth()
 @Controller('categories')
@@ -27,18 +28,21 @@ export class CategoryController {
     constructor(private readonly categoryService: CategoryService) {}
 
     @ApiCategoryFindAll()
+    @Public()
     @Get()
     findAll(@Query() paginationOptions: PaginationOptionsDto) {
         return this.categoryService.findAll(paginationOptions);
     }
 
     @ApiCategoryFindOne()
+    @Public()
     @Get(':id')
     findOne(@Param('id') id: number) {
         return this.categoryService.findOne(id);
     }
 
     @ApiCategoryGetPosts()
+    @Public()
     @Get(':id/posts')
     getCategoryPosts(
         @Param('id') id: number,

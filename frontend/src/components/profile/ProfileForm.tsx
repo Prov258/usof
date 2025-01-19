@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { RootState } from '../../store';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { clearSuccess, updateProfile } from '../store/slices/authSlice';
-import FormInput from './form/FormInput';
-import { useAppDispatch } from '../hooks/redux';
+import { clearSuccess, updateProfile } from '../../store/slices/authSlice';
+import FormInput from '../form/FormInput';
+import { useAppDispatch } from '../../hooks/redux';
 
 export interface ProfileForm {
     fullName: string;

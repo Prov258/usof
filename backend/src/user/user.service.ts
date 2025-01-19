@@ -15,6 +15,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.dto';
 import { Paginated } from 'src/shared/pagination/paginated';
+import { getPaginationMeta } from 'src/shared/pagination/paginated-metadata';
 
 @Injectable()
 export class UserService {
@@ -55,18 +56,9 @@ export class UserService {
             this.prisma.category.count(),
         ]);
 
-        const pageCount = Math.ceil(count / limit);
-
         return {
             data: plainToInstance(UserEntity, users),
-            meta: {
-                page,
-                limit,
-                itemCount: count,
-                pageCount,
-                prev: page > 1 ? page - 1 : null,
-                next: page < pageCount ? page + 1 : null,
-            },
+            meta: getPaginationMeta(count, page, limit),
         };
     }
 

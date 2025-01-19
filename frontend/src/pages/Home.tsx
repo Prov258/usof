@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { PostFiltersType as FilterType } from '../types/index';
 import { PostsList } from '../components/post/PostsList';
 import { useGetPostsQuery } from '../services/postApi';
-import { SearchBar } from '../components/form/SearchBar';
-import PostFilters from '../components/PostFilters';
+import PostFilters from '../components/post/PostFilters';
 
 const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -40,9 +39,11 @@ const Home = () => {
                 </Link>
             </div>
 
-            <PostFilters onFilterChange={setFilters} onSearch={handleSearch} />
-
-            {/* <SearchBar onSearch={handleSearch} /> */}
+            <PostFilters
+                filters={filters}
+                onFilterChange={setFilters}
+                onSearch={handleSearch}
+            />
 
             <div className="space-y-4">
                 <PostsList

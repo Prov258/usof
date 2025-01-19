@@ -37,3 +37,20 @@ export class PaginatedMetadata {
     })
     next: number;
 }
+
+export const getPaginationMeta = (
+    count: number,
+    page: number,
+    limit: number,
+) => {
+    const pageCount = Math.ceil(count / limit);
+
+    return {
+        page,
+        limit,
+        itemCount: count,
+        pageCount,
+        prev: page > 1 ? page - 1 : null,
+        next: page < pageCount ? page + 1 : null,
+    };
+};

@@ -2,6 +2,7 @@ import {
     BadRequestException,
     ForbiddenException,
     Injectable,
+    NotFoundException,
 } from '@nestjs/common';
 import {
     CreatePostDto,
@@ -27,6 +28,7 @@ import {
 import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
 import { CreateLikeDto } from 'src/like/dto/create-like.dto';
 import { CategoryService } from 'src/category/category.service';
+import { getPaginationMeta } from 'src/shared/pagination/paginated-metadata';
 
 @Injectable()
 export class PostService {
@@ -34,26 +36,6 @@ export class PostService {
         private prisma: PrismaService,
         private categorySevice: CategoryService,
     ) {}
-
-    async create(user: User, createPostDto: CreatePostDto): Promise<Post> {
-        await this.categorySevice.validateCategories(createPostDto.categories);
-
-        return await this.prisma.post.create({
-            data: {
-                authorId: user.id,
-                ...createPostDto,
-                categories: {
-                    create: createPostDto.categories.map((title) => ({
-                        category: {
-                            connect: {
-                                title,
-                            },
-                        },
-                    })),
-                },
-            },
-        });
-    }
 
     async findAll(
         { page, limit }: PaginationOptionsDto,
@@ -148,22 +130,13 @@ export class PostService {
             this.prisma.post.count({ where }),
         ]);
 
-        const pageCount = Math.ceil(count / limit);
-
         return {
             data: posts.map((post) => ({
                 ...post,
                 categories: post.categories.map(({ category }) => category),
                 likes: post.likes?.[0]?.type ?? null,
             })),
-            meta: {
-                page,
-                limit,
-                itemCount: count,
-                pageCount,
-                prev: page > 1 ? page - 1 : null,
-                next: page < pageCount ? page + 1 : null,
-            },
+            meta: getPaginationMeta(count, page, limit),
         };
     }
 
@@ -173,10 +146,12 @@ export class PostService {
     ): Promise<
         Post & { categories: Partial<Category>[] } & { likes: LikeType | null }
     > {
-        // fix this typing mess
+        const checkPost = await this.checkPostExistence(id);
+        this.checkPermissionPostStatus(checkPost, user);
+
         const post = await this.prisma.post.findUnique({
             where: {
-                id,
+                id: id,
             },
             include: {
                 categories: {
@@ -205,11 +180,34 @@ export class PostService {
         };
     }
 
+    async create(user: User, createPostDto: CreatePostDto): Promise<Post> {
+        await this.categorySevice.validateCategories(createPostDto.categories);
+
+        return await this.prisma.post.create({
+            data: {
+                authorId: user.id,
+                ...createPostDto,
+                categories: {
+                    create: createPostDto.categories.map((title) => ({
+                        category: {
+                            connect: {
+                                title,
+                            },
+                        },
+                    })),
+                },
+            },
+        });
+    }
+
     async findComments(
         postId: number,
         { page, limit }: PaginationOptionsDto,
         user?: User,
-    ) {
+    ): Promise<Paginated<Comment>> {
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost, user);
+
         const where: Prisma.CommentWhereInput = {
             postId,
         };
@@ -231,21 +229,12 @@ export class PostService {
             this.prisma.comment.count({ where }),
         ]);
 
-        const pageCount = Math.ceil(count / limit);
-
         return {
             data: comments.map((comment) => ({
                 ...comment,
                 likes: comment.likes?.[0]?.type ?? null,
             })),
-            meta: {
-                page,
-                limit,
-                itemCount: count,
-                pageCount,
-                prev: page > 1 ? page - 1 : null,
-                next: page < pageCount ? page + 1 : null,
-            },
+            meta: getPaginationMeta(count, page, limit),
         };
     }
 
@@ -254,11 +243,8 @@ export class PostService {
         user: User,
         createCommentDto: CreateCommentDto,
     ): Promise<Comment> {
-        const post = await this.findOne(postId);
-
-        if (!post || post.status === Status.INACTIVE) {
-            throw new ForbiddenException('Post is missing or inactive');
-        }
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost, user);
 
         return await this.prisma.comment.create({
             data: {
@@ -273,6 +259,9 @@ export class PostService {
     }
 
     async getPostCategories(postId: number): Promise<Category[]> {
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost);
+
         return await this.prisma.category.findMany({
             where: {
                 posts: {
@@ -285,6 +274,9 @@ export class PostService {
     }
 
     async getPostLikes(postId: number): Promise<Like[]> {
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost);
+
         return await this.prisma.like.findMany({
             where: {
                 postId,
@@ -297,11 +289,8 @@ export class PostService {
         user: User,
         createLikeDto: CreateLikeDto,
     ): Promise<Like> {
-        const post = await this.findOne(postId);
-
-        if (!post || post.status === Status.INACTIVE) {
-            throw new ForbiddenException('Post is missing or inactive');
-        }
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost, user);
 
         const like = await this.prisma.like.findFirst({
             where: {
@@ -349,11 +338,8 @@ export class PostService {
     }
 
     async createPostFavorite(postId: number, user: User): Promise<Favorite> {
-        const post = await this.findOne(postId);
-
-        if (!post || post.status === Status.INACTIVE) {
-            throw new ForbiddenException('Post is missing or inactive');
-        }
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost, user);
 
         const favorite = await this.prisma.favorite.findFirst({
             where: {
@@ -381,15 +367,8 @@ export class PostService {
         user: User,
         updatePostDto: UpdatePostDto,
     ): Promise<Post> {
-        const post = await this.findOne(postId);
-
-        if (!post) {
-            throw new ForbiddenException('Post is missing');
-        }
-
-        if (post.authorId !== user.id && user.role !== Role.ADMIN) {
-            throw new ForbiddenException('Forbidden to update post');
-        }
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkOwnership(checkPost, user);
 
         await this.categorySevice.validateCategories(updatePostDto.categories);
 
@@ -414,15 +393,8 @@ export class PostService {
     }
 
     async remove(postId: number, user: User): Promise<Post> {
-        const post = await this.findOne(postId);
-
-        if (!post) {
-            throw new ForbiddenException('Post is missing');
-        }
-
-        if (post.authorId !== user.id && user.role !== Role.ADMIN) {
-            throw new ForbiddenException('Forbidden to update post');
-        }
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkOwnership(checkPost, user);
 
         return await this.prisma.post.delete({
             where: {
@@ -432,11 +404,8 @@ export class PostService {
     }
 
     async removePostFavorite(postId: number, user: User): Promise<Favorite> {
-        const post = await this.findOne(postId);
-
-        if (!post || post.status === Status.INACTIVE) {
-            throw new ForbiddenException('Post is missing or inactive');
-        }
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost, user);
 
         const favorite = await this.prisma.favorite.findFirst({
             where: {
@@ -457,11 +426,8 @@ export class PostService {
     }
 
     async removePostLike(postId: number, user: User): Promise<Like> {
-        const post = await this.findOne(postId);
-
-        if (!post || post.status === Status.INACTIVE) {
-            throw new ForbiddenException('Post is missing or inactive');
-        }
+        const checkPost = await this.checkPostExistence(postId);
+        this.checkPermissionPostStatus(checkPost, user);
 
         const like = await this.prisma.like.findFirst({
             where: {
@@ -504,5 +470,29 @@ export class PostService {
         ]);
 
         return deletedLike;
+    }
+
+    private async checkPostExistence(postId: number) {
+        const post = await this.prisma.post.findUnique({
+            where: { id: postId },
+        });
+
+        if (!post) {
+            throw new NotFoundException('Post not found');
+        }
+
+        return post;
+    }
+
+    private checkOwnership(post: Post, user: User) {
+        if (!user || (post.authorId !== user.id && user.role !== Role.ADMIN)) {
+            throw new ForbiddenException('Forbidden to access post');
+        }
+    }
+
+    private checkPermissionPostStatus(post: Post, user?: User) {
+        if (post.status === Status.INACTIVE) {
+            this.checkOwnership(post, user);
+        }
     }
 }

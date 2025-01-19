@@ -1,8 +1,8 @@
 import React, { useCallback, useState } from 'react';
-import ProfilePostFilters from '../../components/profile/ProfilePostFilters';
 import type { PostFiltersType } from '../../types';
 import { useGetPostsQuery } from '../../services/postApi';
 import { PostsList } from '../../components/post/PostsList';
+import PostFilters from '../../components/post/PostFilters';
 
 interface ProfilePostsProps {
     userId: number;
@@ -41,7 +41,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
 
     return (
         <div className="space-y-6">
-            <ProfilePostFilters
+            <PostFilters
                 filters={filters}
                 onFilterChange={handleFilterChange}
                 onSearch={handleSearch}

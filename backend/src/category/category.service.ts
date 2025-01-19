@@ -8,6 +8,7 @@ import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.d
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Paginated } from 'src/shared/pagination/paginated';
 import { Category, Post, Prisma } from '@prisma/client';
+import { getPaginationMeta } from 'src/shared/pagination/paginated-metadata';
 
 @Injectable()
 export class CategoryService {
@@ -25,18 +26,9 @@ export class CategoryService {
             this.prisma.category.count(),
         ]);
 
-        const pageCount = Math.ceil(count / limit);
-
         return {
             data: categories,
-            meta: {
-                page,
-                limit,
-                itemCount: count,
-                pageCount,
-                prev: page > 1 ? page - 1 : null,
-                next: page < pageCount ? page + 1 : null,
-            },
+            meta: getPaginationMeta(count, page, limit),
         };
     }
 
@@ -69,18 +61,9 @@ export class CategoryService {
             this.prisma.post.count({ where }),
         ]);
 
-        const pageCount = Math.ceil(count / limit);
-
         return {
             data: posts,
-            meta: {
-                page,
-                limit,
-                itemCount: count,
-                pageCount,
-                prev: page > 1 ? page - 1 : null,
-                next: page < pageCount ? page + 1 : null,
-            },
+            meta: getPaginationMeta(count, page, limit),
         };
     }
 

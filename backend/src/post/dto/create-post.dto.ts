@@ -1,13 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Status } from '@prisma/client';
-import {
-    IsEnum,
-    IsNotEmpty,
-    IsNumber,
-    IsOptional,
-    IsPositive,
-    IsString,
-} from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreatePostDto {
     @ApiProperty({
@@ -37,7 +30,7 @@ export class CreatePostDto {
 
     @ApiProperty({
         example: ['javascript', 'web'],
-        type: Array<String>,
+        type: Array<string>,
     })
     @IsOptional()
     @IsString({ each: true })
