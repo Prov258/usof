@@ -1,41 +1,29 @@
-import React from 'react';
-import Tabs from '../tabs/Tabs';
+import { Tabs } from '@mantine/core';
+import ProfileForm from './ProfileForm';
+import PasswordForm from './PasswordForm';
+import AvatarForm from './AvatarForm';
 
-type TabKey = 'profile' | 'password' | 'avatar';
-
-interface ProfileTabsProps {
-    activeTab: TabKey;
-    onTabChange: (tab: TabKey) => void;
-}
-
-const tabs = [
-    {
-        key: 'profile',
-        label: 'Profile Information',
-        icon: <></>,
-    },
-    {
-        key: 'password',
-        label: 'Change Password',
-        icon: <></>,
-    },
-    {
-        key: 'avatar',
-        label: 'Upload Avatar',
-        icon: <></>,
-    },
-];
-
-const ProfileSettingsTabs: React.FC<ProfileTabsProps> = ({
-    activeTab,
-    onTabChange,
-}) => {
+const ProfileSettingsTabs = () => {
     return (
-        <Tabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={(tab) => onTabChange(tab as TabKey)}
-        />
+        <Tabs defaultValue="profile" radius="md">
+            <Tabs.List mb="xl">
+                <Tabs.Tab value="profile">Profile Information</Tabs.Tab>
+                <Tabs.Tab value="password">Change Password</Tabs.Tab>
+                <Tabs.Tab value="avatar">Upload Avatar</Tabs.Tab>
+            </Tabs.List>
+
+            <Tabs.Panel value="profile">
+                <ProfileForm />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="password">
+                <PasswordForm />
+            </Tabs.Panel>
+
+            <Tabs.Panel value="avatar">
+                <AvatarForm />
+            </Tabs.Panel>
+        </Tabs>
     );
 };
 

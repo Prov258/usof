@@ -40,22 +40,15 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
                         size="sm"
                     />
                     <Group justify="space-between" style={{ flex: 1 }}>
-                        <Title order={3}>
-                            <Link
-                                to="/"
-                                className="flex items-center space-x-3"
-                            >
-                                TellMe
-                            </Link>
+                        <Title order={3} component={Link} to="/">
+                            TellMe
                         </Title>
                         <Group ml="xl" gap={25} visibleFrom="sm">
                             {user ? (
                                 <>
                                     <Button
                                         variant="light"
-                                        leftSection={
-                                            <PlusSquare className="h-5 w-5" />
-                                        }
+                                        leftSection={<PlusSquare size={20} />}
                                         component={Link}
                                         to="/create-post"
                                     >
@@ -71,16 +64,14 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
                                                     alt={user.login}
                                                 />
                                             ) : (
-                                                <User className="h-5 w-5" />
+                                                <User size={20} />
                                             )}
                                         </Group>
                                     </Link>
                                     <Button
                                         variant="transparent"
                                         onClick={handleLogout}
-                                        leftSection={
-                                            <LogOut className="h-5 w-5" />
-                                        }
+                                        leftSection={<LogOut size={20} />}
                                     >
                                         Logout
                                     </Button>
@@ -89,18 +80,14 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
                                 <>
                                     <Button
                                         variant="subtle"
-                                        leftSection={
-                                            <LogIn className="h-5 w-5" />
-                                        }
+                                        leftSection={<LogIn size={20} />}
                                         component={Link}
                                         to="/login"
                                     >
                                         Sign In
                                     </Button>
                                     <Button
-                                        leftSection={
-                                            <UserPlus className="h-5 w-5" />
-                                        }
+                                        leftSection={<UserPlus size={20} />}
                                         component={Link}
                                         to="/register"
                                     >

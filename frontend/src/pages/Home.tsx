@@ -41,7 +41,7 @@ const Home = () => {
                 <Title order={2}>Questions</Title>
                 <Button
                     variant="light"
-                    leftSection={<PlusSquare className="h-5 w-5" />}
+                    leftSection={<PlusSquare size={20} />}
                     component={Link}
                     to="/create-post"
                 >

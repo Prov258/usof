@@ -4,6 +4,7 @@ import type { RootState } from '../../store';
 import VoteButton from './VoteButton';
 import { useVotePostMutation } from '../../services/postApi';
 import { useVoteCommentMutation } from '../../services/commentApi';
+import { Stack, Text } from '@mantine/core';
 
 interface VoteButtonsProps {
     type: 'post' | 'comment';
@@ -40,7 +41,7 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
     };
 
     return (
-        <div className="flex flex-col items-center space-y-1">
+        <Stack align="center" gap={3}>
             <VoteButton
                 voteType="LIKE"
                 onClick={() => handleVote('LIKE')}
@@ -48,11 +49,12 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
                 active={userVote === 'LIKE'}
             />
 
-            <span
-                className={`font-medium ${rating > 0 ? 'text-green-600' : rating < 0 ? 'text-red-600' : 'text-gray-600'}`}
+            <Text
+                fw={500}
+                c={rating > 0 ? 'green' : rating < 0 ? 'red' : 'dark'}
             >
                 {rating}
-            </span>
+            </Text>
 
             <VoteButton
                 voteType="DISLIKE"
@@ -60,7 +62,7 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
                 disabled={!user || userVote === 'LIKE'}
                 active={userVote === 'DISLIKE'}
             />
-        </div>
+        </Stack>
     );
 };
 

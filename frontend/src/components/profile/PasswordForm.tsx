@@ -6,8 +6,9 @@ import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { clearSuccess, updateProfile } from '../../store/slices/authSlice';
-import FormInput from '../form/FormInput';
 import { useAppDispatch } from '../../hooks/redux';
+import { Button, Group, PasswordInput, Stack, Text } from '@mantine/core';
+import { Lock } from 'lucide-react';
 
 interface PasswordForm {
     oldPassword: string;
@@ -61,42 +62,39 @@ const PasswordForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit(onPasswordSubmit)} className="space-y-6">
-            <FormInput
-                name={'oldPassword'}
-                type={'password'}
-                label={'Current Password'}
-                register={register}
-                errors={errors}
-            />
-            <FormInput
-                name={'newPassword'}
-                type={'password'}
-                label={'New Password'}
-                register={register}
-                errors={errors}
-            />
-            <FormInput
-                name={'confirmPassword'}
-                type={'password'}
-                label={'Confirm New Password'}
-                register={register}
-                errors={errors}
-            />
+        <form onSubmit={handleSubmit(onPasswordSubmit)}>
+            <Stack>
+                <PasswordInput
+                    {...register('oldPassword')}
+                    label="Current password"
+                    placeholder="Your current password"
+                    leftSection={<Lock size={16} />}
+                    required
+                />
+                <PasswordInput
+                    {...register('newPassword')}
+                    label="Password"
+                    placeholder="New password"
+                    leftSection={<Lock size={16} />}
+                    required
+                />
+                <PasswordInput
+                    {...register('confirmPassword')}
+                    label="Confirm Password"
+                    placeholder="Confirm your new password"
+                    error={errors.confirmPassword?.message}
+                    leftSection={<Lock size={16} />}
+                    required
+                />
 
-            {error && (
-                <div className="text-sm text-red-600 text-center">{error}</div>
-            )}
+                {error && <Text c="red">{error}</Text>}
 
-            <div className="flex justify-end">
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                >
-                    {isLoading ? 'Changing Password...' : 'Change Password'}
-                </button>
-            </div>
+                <Group justify="flex-end">
+                    <Button type="submit" disabled={isLoading} mt="md">
+                        {isLoading ? 'Changing Password...' : 'Change Password'}
+                    </Button>
+                </Group>
+            </Stack>
         </form>
     );
 };

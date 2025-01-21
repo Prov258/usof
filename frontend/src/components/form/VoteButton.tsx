@@ -1,5 +1,6 @@
 import React from 'react';
 import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ActionIcon } from '@mantine/core';
 
 interface VoteButtonProps {
     voteType: 'LIKE' | 'DISLIKE';
@@ -15,17 +16,16 @@ const VoteButton: React.FC<VoteButtonProps> = ({
     active,
 }) => {
     const Icon = voteType === 'LIKE' ? ThumbsUp : ThumbsDown;
-    const activeClass =
-        voteType === 'LIKE'
-            ? 'text-green-600 hover:bg-green-50'
-            : 'text-red-600 hover:bg-red-50';
-    const inactiveClass = 'text-gray-500 hover:bg-gray-100';
+    const activeColor = voteType === 'LIKE' ? 'green' : 'red';
+    const inactiveColor = 'gray';
 
     return (
-        <button
-            onClick={onClick}
+        <ActionIcon
+            variant="subtle"
+            radius="xl"
+            c={active ? activeColor : inactiveColor}
             disabled={disabled}
-            className={`p-2 rounded-full transition-colors ${active ? activeClass : inactiveClass} ${disabled && 'opacity-50 cursor-not-allowed'}`}
+            onClick={onClick}
             title={
                 !disabled
                     ? active
@@ -33,11 +33,11 @@ const VoteButton: React.FC<VoteButtonProps> = ({
                         : voteType === 'LIKE'
                           ? 'Upvote'
                           : 'Downvote'
-                    : 'Please login to vote'
+                    : 'Please login or remove another vote'
             }
         >
-            <Icon className="h-5 w-5" />
-        </button>
+            <Icon size={20} />
+        </ActionIcon>
     );
 };
 

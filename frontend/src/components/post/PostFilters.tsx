@@ -27,7 +27,7 @@ const PostFilters: React.FC<PostFiltersProps> = ({
 
                 <Button
                     variant="transparent"
-                    leftSection={<SlidersHorizontal className="h-5 w-5" />}
+                    leftSection={<SlidersHorizontal size={20} />}
                     onClick={() => setShowFilters(!showFilters)}
                 >
                     Filters

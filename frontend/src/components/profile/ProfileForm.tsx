@@ -6,8 +6,9 @@ import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { clearSuccess, updateProfile } from '../../store/slices/authSlice';
-import FormInput from '../form/FormInput';
 import { useAppDispatch } from '../../hooks/redux';
+import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
+import { Mail, User } from 'lucide-react';
 
 export interface ProfileForm {
     fullName: string;
@@ -51,42 +52,41 @@ const ProfileForm = () => {
     };
 
     return (
-        <form onSubmit={handleSubmit(onProfileSubmit)} className="space-y-6">
-            <FormInput
-                name={'fullName'}
-                type={'text'}
-                label={'Full Name'}
-                register={register}
-                errors={errors}
-            />
-            <FormInput
-                name={'email'}
-                type={'email'}
-                label={'Email'}
-                register={register}
-                errors={errors}
-            />
-            <FormInput
-                name={'login'}
-                type={'text'}
-                label={'Login'}
-                register={register}
-                errors={errors}
-            />
+        <form onSubmit={handleSubmit(onProfileSubmit)}>
+            <Stack>
+                <TextInput
+                    {...register('login')}
+                    label="Login"
+                    placeholder="Choose a login"
+                    error={errors.login?.message}
+                    leftSection={<User size={16} />}
+                    required
+                />
+                <TextInput
+                    {...register('fullName')}
+                    label="Full Name"
+                    placeholder="John Doe"
+                    leftSection={<User size={16} />}
+                    error={errors.fullName?.message}
+                    required
+                />
+                <TextInput
+                    {...register('email')}
+                    label="Email"
+                    placeholder="your@email.com"
+                    leftSection={<Mail size={16} />}
+                    error={errors.email?.message}
+                    required
+                />
 
-            {error && (
-                <div className="text-sm text-red-600 text-center">{error}</div>
-            )}
+                {error && <Text c="red">{error}</Text>}
 
-            <div className="flex justify-end">
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                >
-                    {isLoading ? 'Saving...' : 'Save Changes'}
-                </button>
-            </div>
+                <Group justify="flex-end">
+                    <Button type="submit" disabled={isLoading} mt="md">
+                        {isLoading ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                </Group>
+            </Stack>
         </form>
     );
 };

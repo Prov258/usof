@@ -19,7 +19,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         <Input
             type="text"
             placeholder="Search questions by title..."
-            leftSection={<Search className="h-5 w-5 text-gray-400" />}
+            leftSection={<Search size={20} color="gray" />}
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             size="md"

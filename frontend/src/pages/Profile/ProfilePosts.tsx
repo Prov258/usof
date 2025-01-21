@@ -40,7 +40,7 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
     }, []);
 
     return (
-        <div className="space-y-6">
+        <div>
             <PostFilters
                 filters={filters}
                 onFilterChange={handleFilterChange}

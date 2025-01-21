@@ -35,7 +35,7 @@ const CommentCard: React.FC<CommentProps> = ({ comment }) => {
                             <Text c="gray">{comment.author.login}</Text>
                         </Group>
                         <Group gap="xs" c="gray">
-                            <Clock className="h-4 w-4" />
+                            <Clock size={16} />
                             <Text>
                                 {formatDistanceToNow(
                                     new Date(comment.createdAt),

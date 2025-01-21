@@ -1,6 +1,14 @@
 import React from 'react';
 import { Post } from '../../types';
-import { Avatar, Badge, Card, Group, Stack, Text } from '@mantine/core';
+import {
+    ActionIcon,
+    Avatar,
+    Badge,
+    Card,
+    Group,
+    Stack,
+    Text,
+} from '@mantine/core';
 import VoteButtons from '../form/VoteButtons';
 import { Link } from 'react-router-dom';
 import { url } from '../../utils/funcs';
@@ -24,18 +32,19 @@ const PostCard: React.FC<PostCardProps> = ({ post, editable }) => {
                 />
                 <Stack style={{ flexGrow: 1 }} gap="xs">
                     <Group justify="space-between">
-                        <Link to={`/posts/${post.id}`} className="block">
+                        <Link to={`/posts/${post.id}`}>
                             <Text fw={600} size="xl">
                                 {post.title}
                             </Text>
                         </Link>
                         {editable && (
-                            <Link
+                            <ActionIcon
+                                variant="subtle"
+                                component={Link}
                                 to={`/posts/${post.id}/edit`}
-                                className="flex items-center text-gray-500 hover:text-indigo-600"
                             >
-                                <Edit className="h-5 w-5" />
-                            </Link>
+                                <Edit size={20} />
+                            </ActionIcon>
                         )}
                     </Group>
 
@@ -58,7 +67,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, editable }) => {
                             <Text c="gray">{post.author.login}</Text>
                         </Group>
                         <Group gap="xs" c="gray">
-                            <Clock className="h-4 w-4" />
+                            <Clock size={16} />
                             <Text>
                                 {formatDistanceToNow(new Date(post.createdAt))}{' '}
                                 ago

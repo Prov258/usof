@@ -4,14 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { RootState } from '../../store';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileTabs from '../../components/profile/ProfileTabs';
-import ProfilePosts from './ProfilePosts';
-import ProfileSettings from './ProfileSettings';
+import { Container } from '@mantine/core';
 
 const Profile = () => {
     const { user } = useSelector((state: RootState) => state.auth);
-    const [activeTab, setActiveTab] = React.useState<'posts' | 'settings'>(
-        'posts',
-    );
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,18 +17,10 @@ const Profile = () => {
     }, [navigate, user]);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Container size="lg">
             <ProfileHeader user={user} />
-            <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-            <div className="mt-6">
-                {activeTab === 'posts' ? (
-                    <ProfilePosts userId={user.id} />
-                ) : (
-                    <ProfileSettings />
-                )}
-            </div>
-        </div>
+            <ProfileTabs user={user} />
+        </Container>
     );
 };
 

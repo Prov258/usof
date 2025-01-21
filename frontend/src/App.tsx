@@ -6,13 +6,13 @@ import PostDetail from './pages/post/PostDetail';
 import CreatePost from './pages/post/CreatePost';
 import Profile from './pages/profile/Profile';
 import ForgotPassword from './pages/auth/ForgotPassword';
-import NoPage from './pages/NoPage';
 import PasswordReset from './pages/auth/PasswordReset';
 import EditPost from './pages/post/EditPost';
 import PrivateRoute from './components/PrivateRoute';
 import EmailVerification from './pages/auth/EmailVerification';
 import Layout from './components/layout/Layout';
 import { Toaster } from 'react-hot-toast';
+import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
     return (
@@ -59,7 +59,7 @@ const App = () => {
                             </PrivateRoute>
                         }
                     />
-                    <Route path="*" element={<NoPage />} />
+                    <Route path="*" element={<NotFoundPage />} />
                 </Routes>
                 <Toaster position="top-center" />
             </Layout>
