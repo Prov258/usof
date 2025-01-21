@@ -7,7 +7,7 @@ export const categoriesApi = createApi({
     baseQuery: axiosBaseQuery(),
     tagTypes: ['Category'],
     endpoints: (builder) => ({
-        getCategories: builder.query<Paginated<Category>, null>({
+        getCategories: builder.query<Paginated<Category>, void>({
             query: () => ({
                 url: '/categories',
                 method: 'GET',

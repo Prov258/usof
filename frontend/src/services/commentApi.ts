@@ -3,6 +3,11 @@ import { Comment, Like, Paginated } from '../types';
 import { VoteQuery } from '../types';
 import axiosBaseQuery from '../utils/axiosBaseQuery';
 
+interface CommentsQuery {
+    postId: number;
+    page: number;
+}
+
 interface CreateCommentQuery {
     postId: number;
     content: string;
@@ -13,11 +18,17 @@ export const commentsApi = createApi({
     baseQuery: axiosBaseQuery(),
     tagTypes: ['Comment'],
     endpoints: (builder) => ({
-        getComments: builder.query<Paginated<Comment>, number>({
-            query: (postId: number) => ({
-                url: `/posts/${postId}/comments`,
-                method: 'GET',
-            }),
+        getComments: builder.query<Paginated<Comment>, CommentsQuery>({
+            query: ({ postId, page }) => {
+                const params = new URLSearchParams({
+                    ...(page && { page: page.toString() }),
+                });
+
+                return {
+                    url: `/posts/${postId}/comments?${params}`,
+                    method: 'GET',
+                };
+            },
             providesTags: (result) =>
                 result ? [{ type: 'Comment', id: 'LIST' }] : [],
         }),

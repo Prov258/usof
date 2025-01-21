@@ -5,9 +5,18 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { resetPassword } from '../../store/slices/authSlice';
-import FormInput from '../../components/form/FormInput';
 import { RootState } from '../../store';
 import { useAppDispatch } from '../../hooks/redux';
+import {
+    Button,
+    Container,
+    Paper,
+    PasswordInput,
+    Stack,
+    Text,
+    Title,
+} from '@mantine/core';
+import { Lock } from 'lucide-react';
 
 export interface PasswordResetForm {
     password: string;
@@ -53,71 +62,54 @@ const PasswordReset = () => {
 
     return (
         <>
-            <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 mt-20">
-                <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                    <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+            <Container size="sm">
+                <Paper withBorder shadow="sm" radius="md" p="xl">
+                    <Title order={3} mb="md" ta="center">
                         Reset Password
-                    </h2>
-                </div>
+                    </Title>
 
-                <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                    <form
-                        action="#"
-                        method="POST"
-                        className="space-y-6 text-left"
-                        onSubmit={handleSubmit(onSubmit)}
-                    >
-                        <FormInput
-                            name={'password'}
-                            type={'password'}
-                            label={'Password'}
-                            register={register}
-                            errors={errors}
-                        />
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <Stack>
+                            <PasswordInput
+                                {...register('password')}
+                                label="Password"
+                                placeholder="Your password"
+                                leftSection={<Lock size={16} />}
+                                required
+                            />
+                            <PasswordInput
+                                {...register('confirmPassword')}
+                                label="Confirm Password"
+                                placeholder="Confirm your password"
+                                error={errors.confirmPassword?.message}
+                                leftSection={<Lock size={16} />}
+                                required
+                            />
 
-                        <FormInput
-                            name={'confirmPassword'}
-                            type={'password'}
-                            label={'Confirm Password'}
-                            register={register}
-                            errors={errors}
-                        />
+                            {error && <Text c="red">{error}</Text>}
+                            {success && (
+                                <Text c="green">
+                                    Reset password successfully
+                                </Text>
+                            )}
 
-                        <div className="text-sm">
-                            Back to{' '}
-                            <Link
-                                to="/login"
-                                className="font-semibold text-indigo-600 hover:text-indigo-500"
-                            >
-                                Sign In
-                            </Link>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            >
+                            <Button type="submit" disabled={isLoading}>
                                 {isLoading
                                     ? 'Reseting password...'
                                     : 'Reset password'}
-                            </button>
-                        </div>
+                            </Button>
 
-                        {success && (
-                            <div className="text-sm text-green-600 text-center">
-                                Reset password successfully
-                            </div>
-                        )}
-                        {error && (
-                            <div className="text-sm text-red-600 text-center">
-                                {error}
-                            </div>
-                        )}
+                            <Button
+                                variant="subtle"
+                                component={Link}
+                                to="/login"
+                            >
+                                Back to login
+                            </Button>
+                        </Stack>
                     </form>
-                </div>
-            </div>
+                </Paper>
+            </Container>
         </>
     );
 };

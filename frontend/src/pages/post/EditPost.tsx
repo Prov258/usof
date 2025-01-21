@@ -1,19 +1,28 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
-import CategorySelect from '../../components/CategorySelect';
+import CategorySelect from '../../components/form/CategorySelect';
 import type { RootState } from '../../store';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Spinner from '../../components/Spinner';
 import {
     useGetPostByIdQuery,
     useUpdatePostMutation,
 } from '../../services/postApi';
-import FormArea from '../../components/form/FormArea';
-import FormInput from '../../components/form/FormInput';
+import {
+    Button,
+    Center,
+    Container,
+    Group,
+    Loader,
+    Paper,
+    Text,
+    Textarea,
+    TextInput,
+    Title,
+} from '@mantine/core';
 
 interface EditPostForm {
     title: string;
@@ -31,16 +40,14 @@ const schema = z.object({
 const EditPost = () => {
     const { id } = useParams<{ id: string }>();
     const { user } = useSelector((state: RootState) => state.auth);
-    const [updatePost, { isLoading: isUpdating, isSuccess, error }] =
+    const [updatePost, { isLoading: isUpdating, isSuccess, isError }] =
         useUpdatePostMutation();
-    const { data: currentPost, isLoading } = useGetPostByIdQuery(id);
-
-    const navigate = useNavigate();
+    const { data: currentPost, isLoading } = useGetPostByIdQuery(id ?? '');
 
     const {
+        setValue,
         register,
         handleSubmit,
-        control,
         reset,
         formState: { errors },
     } = useForm<EditPostForm>({
@@ -68,94 +75,68 @@ const EditPost = () => {
     };
 
     if (isLoading) {
-        return <Spinner />;
+        return (
+            <Center h="200">
+                <Loader color="blue" size="lg" />
+            </Center>
+        );
     }
 
     if (!currentPost || !user || currentPost.author.id !== user.id) {
         return (
-            <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900">
+            <Center h="200">
+                <Text c="red" size="xl" fw={700}>
                     You don't have permission to edit this post
-                </h2>
-            </div>
+                </Text>
+            </Center>
         );
     }
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-6">
+        <Container size="sm">
+            <Paper withBorder shadow="sm" radius="md" p="xl">
+                <Title order={3} mb="md" ta="center">
                     Edit Post
-                </h1>
+                </Title>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <FormInput
-                        name={'title'}
-                        type={'text'}
-                        label={'Title'}
-                        register={register}
-                        errors={errors}
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <TextInput
+                        {...register('title')}
+                        label="Title"
+                        placeholder="What's your question?"
+                        error={errors.title?.message}
+                        required
                     />
-
-                    <FormArea
-                        name={'content'}
-                        label={'Content'}
-                        rows={10}
-                        placeholder={
-                            'Include all the information someone would need to answer your question'
-                        }
-                        register={register}
-                        errors={errors}
+                    <Textarea
+                        {...register('content')}
+                        error={errors.content?.message}
+                        withAsterisk
+                        label="Content"
+                        placeholder="Describe your question in detail..."
+                        autosize
+                        minRows={5}
+                        maxRows={10}
+                        required
                     />
 
                     <CategorySelect
                         selectedCategories={currentPost.categories}
-                        control={control}
+                        onChange={(value) =>
+                            setValue('categories', value.categories)
+                        }
                         error={errors.categories?.message}
                     />
 
-                    {/* <div>
-                        <label
-                            htmlFor="status"
-                            className="block text-sm font-medium text-gray-700"
-                        >
-                            Status
-                        </label>
-                        <select
-                            id="status"
-                            {...register('status')}
-                            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                        >
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div> */}
+                    {isError && <Text c="red">Error occurred</Text>}
 
-                    {error && (
-                        <div className="text-sm text-red-600 text-center">
-                            {error.data}
-                        </div>
-                    )}
-
-                    <div className="flex justify-end space-x-4">
-                        <button
-                            type="button"
-                            onClick={() => navigate(`/posts/${currentPost.id}`)}
-                            className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isUpdating}
-                            className="inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                        >
-                            {isUpdating ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
+                    <Group justify="flex-end">
+                        <Button type="submit" disabled={isUpdating} mt="md">
+                            {isUpdating ? 'Saving...' : 'Save'}
+                        </Button>
+                    </Group>
                 </form>
-            </div>
-        </div>
+            </Paper>
+        </Container>
     );
 };
 

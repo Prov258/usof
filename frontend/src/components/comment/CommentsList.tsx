@@ -1,84 +1,58 @@
-import React from 'react';
-import { Clock } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import VoteButtons from '../form/VoteButtons';
+import React, { useState } from 'react';
 import { useGetCommentsQuery } from '../../services/commentApi';
-import Spinner from '../Spinner';
-import { url } from '../../utils/funcs';
+import CommentCard from './CommentCard';
+import { Center, Loader, Pagination, Stack, Text, Title } from '@mantine/core';
 
 interface CommentsListProps {
     postId: number;
 }
 
 const CommentsList: React.FC<CommentsListProps> = ({ postId }) => {
+    const [currentPage, setCurrentPage] = useState(1);
     const {
         data: commentsData,
         isLoading,
         isError,
-    } = useGetCommentsQuery(postId);
+    } = useGetCommentsQuery({ postId, page: currentPage });
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     if (isLoading) {
-        return <Spinner />;
+        return (
+            <Center h="200">
+                <Loader color="blue" size="lg" />
+            </Center>
+        );
     }
 
     if (isError) {
         return (
-            <div className="text-center py-12">
-                <h2 className="text-xl font-semibold text-red-600">
+            <Center h="200">
+                <Text c="red" size="xl" fw={700}>
                     Failed to load comments
-                </h2>
-            </div>
+                </Text>
+            </Center>
         );
     }
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {commentsData?.data.length}{' '}
-                {commentsData?.data.length === 1 ? 'Answer' : 'Answers'}
-            </h2>
-            {commentsData?.data.map((comment) => (
-                <div
-                    key={comment.id}
-                    className="bg-white rounded-lg shadow-md p-6"
-                >
-                    <div className="flex space-x-4">
-                        <VoteButtons
-                            type={'comment'}
-                            id={comment.id}
-                            rating={comment.rating}
-                            userVote={comment?.likes}
-                        />
-
-                        <div className="flex-1">
-                            <div className="prose max-w-none mb-4">
-                                {comment.content}
-                            </div>
-
-                            <div className="flex items-center justify-between text-sm text-gray-500">
-                                <div className="flex items-center space-x-2">
-                                    <img
-                                        src={url(comment.author.avatar)}
-                                        alt={comment.author.login}
-                                        className="h-6 w-6 rounded-full"
-                                    />
-                                    <span>{comment.author.login}</span>
-                                </div>
-                                <div className="flex items-center space-x-1">
-                                    <Clock className="h-4 w-4" />
-                                    <span>
-                                        {formatDistanceToNow(
-                                            new Date(comment.createdAt),
-                                        )}{' '}
-                                        ago
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ))}
-        </div>
+        <Stack>
+            <Title order={3}>Comments ({commentsData?.meta.itemCount})</Title>
+            <Stack gap={0}>
+                {commentsData?.data.map((comment) => (
+                    <CommentCard key={comment.id} comment={comment} />
+                ))}
+                <Pagination
+                    m="md"
+                    component={Center}
+                    total={commentsData?.meta.pageCount || 0}
+                    value={commentsData?.meta.page}
+                    onChange={handlePageChange}
+                />
+            </Stack>
+        </Stack>
     );
 };
 

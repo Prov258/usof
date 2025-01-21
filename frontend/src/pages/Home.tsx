@@ -4,6 +4,8 @@ import { PostFiltersType as FilterType } from '../types/index';
 import { PostsList } from '../components/post/PostsList';
 import { useGetPostsQuery } from '../services/postApi';
 import PostFilters from '../components/post/PostFilters';
+import { Button, Container, Group, Stack, Title } from '@mantine/core';
+import { PlusSquare } from 'lucide-react';
 
 const Home = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -11,6 +13,7 @@ const Home = () => {
         title: '',
         sortBy: 'createdAt',
         sortOrder: 'desc',
+        categories: [],
     });
     const {
         data: postsData,
@@ -27,33 +30,40 @@ const Home = () => {
         setCurrentPage(1);
     }, []);
 
+    const handleFilterChange = useCallback((newFilter: Partial<FilterType>) => {
+        setFilters((prevFilters) => ({ ...prevFilters, ...newFilter }));
+        setCurrentPage(1);
+    }, []);
+
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-gray-900">Questions</h1>
-                <Link
+        <Container size="xl">
+            <Group justify="space-between" mb="lg">
+                <Title order={2}>Questions</Title>
+                <Button
+                    variant="light"
+                    leftSection={<PlusSquare className="h-5 w-5" />}
+                    component={Link}
                     to="/create-post"
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
                 >
                     Ask Question
-                </Link>
-            </div>
+                </Button>
+            </Group>
 
             <PostFilters
                 filters={filters}
-                onFilterChange={setFilters}
+                onFilterChange={handleFilterChange}
                 onSearch={handleSearch}
             />
 
-            <div className="space-y-4">
+            <Stack>
                 <PostsList
                     postsData={postsData}
                     isLoading={isLoading}
                     isError={isError}
                     handlePageChange={handlePageChange}
                 />
-            </div>
-        </div>
+            </Stack>
+        </Container>
     );
 };
 

@@ -1,13 +1,13 @@
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { SlidersHorizontal } from 'lucide-react';
 import { PostFiltersType } from '../../types';
-import CategorySelect from '../CategorySelect';
 import { SearchBar } from '../form/SearchBar';
+import { Box, Button, Group, Select, SimpleGrid } from '@mantine/core';
+import CategorySelect from '../form/CategorySelect';
 
 interface PostFiltersProps {
     filters: PostFiltersType;
-    onFilterChange: (filters: PostFiltersType) => void;
+    onFilterChange: (newFilter: Partial<PostFiltersType>) => void;
     onSearch: (value: string) => void;
 }
 
@@ -17,65 +17,63 @@ const PostFilters: React.FC<PostFiltersProps> = ({
     onSearch,
 }) => {
     const [showFilters, setShowFilters] = React.useState(false);
-    const { register, control, watch } = useForm<PostFiltersType>({
-        defaultValues: filters,
-    });
-
-    React.useEffect(() => {
-        const subscription = watch((value) => {
-            onFilterChange(value as PostFiltersType);
-        });
-        return () => subscription.unsubscribe();
-    }, [watch, onFilterChange]);
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-                <div className="flex-1">
+        <Box mb="md">
+            <Group>
+                <Box style={{ flexGrow: 1 }}>
                     <SearchBar onSearch={onSearch} />
-                </div>
+                </Box>
 
-                <button
+                <Button
+                    variant="transparent"
+                    leftSection={<SlidersHorizontal className="h-5 w-5" />}
                     onClick={() => setShowFilters(!showFilters)}
-                    className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-indigo-600"
                 >
-                    <SlidersHorizontal className="h-5 w-5" />
-                    <span>Filters</span>
-                </button>
-            </div>
+                    Filters
+                </Button>
+            </Group>
 
             {showFilters && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white rounded-lg shadow-sm">
-                    <CategorySelect control={control} error={''} />
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Sort By
-                        </label>
-                        <select
-                            {...register('sortBy')}
-                            className="w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                        >
-                            <option value="rating">rating</option>
-                            <option value="createdAt">createdAt</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Sort Order
-                        </label>
-                        <select
-                            {...register('sortOrder')}
-                            className="w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                        >
-                            <option value="desc">Descending</option>
-                            <option value="asc">Ascending</option>
-                        </select>
-                    </div>
-                </div>
+                <SimpleGrid cols={{ base: 1, md: 3 }} mt="md">
+                    <CategorySelect
+                        onChange={onFilterChange}
+                        categoryValues={filters.categories}
+                    />
+                    <Select
+                        label="Sort By"
+                        allowDeselect={false}
+                        data={[
+                            { value: 'rating', label: 'Rating' },
+                            { value: 'createdAt', label: 'Create Date' },
+                        ]}
+                        value={filters.sortBy}
+                        onChange={(value) =>
+                            onFilterChange({
+                                sortBy: value as
+                                    | 'rating'
+                                    | 'createdAt'
+                                    | undefined,
+                            })
+                        }
+                    />
+                    <Select
+                        label="Sort Order"
+                        allowDeselect={false}
+                        data={[
+                            { value: 'desc', label: 'Descending' },
+                            { value: 'asc', label: 'Ascending' },
+                        ]}
+                        value={filters.sortOrder}
+                        onChange={(value) =>
+                            onFilterChange({
+                                sortOrder: value as 'desc' | 'asc' | undefined,
+                            })
+                        }
+                    />
+                </SimpleGrid>
             )}
-        </div>
+        </Box>
     );
 };
 

@@ -96,8 +96,9 @@ export const resetPassword = createAsyncThunk<
         { token, ...data }: PasswordResetForm & { token: string },
         { rejectWithValue },
     ) => {
+        console.log(data);
         try {
-            await api.post(`/auth/password-reset/${token}`, { data });
+            await api.post(`/auth/password-reset/${token}`, data);
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 return rejectWithValue(error.response?.data.message);

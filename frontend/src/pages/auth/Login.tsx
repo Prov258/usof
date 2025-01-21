@@ -5,9 +5,20 @@ import { login } from '../../store/slices/authSlice';
 import type { RootState } from '../../store';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import FormInput from '../../components/form/FormInput';
 import { useEffect } from 'react';
 import { useAppDispatch } from '../../hooks/redux';
+import {
+    Anchor,
+    Button,
+    Container,
+    Paper,
+    PasswordInput,
+    Stack,
+    Text,
+    TextInput,
+    Title,
+} from '@mantine/core';
+import { Lock, Mail } from 'lucide-react';
 
 export interface LoginForm {
     email: string;
@@ -44,76 +55,54 @@ const Login = () => {
     }, [navigate, user]);
 
     return (
-        <div className="max-w-md mx-auto mt-20">
-            <div className="bg-white p-8 rounded-lg shadow-md">
-                <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
+        <Container size="sm">
+            <Paper withBorder shadow="sm" radius="md" p="xl">
+                <Title order={3} mb="md" ta="center">
                     Sign In
-                </h2>
+                </Title>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                    <FormInput
-                        name={'email'}
-                        type={'email'}
-                        label={'Email'}
-                        register={register}
-                        errors={errors}
-                    />
-                    <FormInput
-                        name={'password'}
-                        type={'password'}
-                        label={'Password'}
-                        register={register}
-                        errors={errors}
-                    />
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <Stack>
+                        <TextInput
+                            {...register('email')}
+                            label="Email"
+                            placeholder="your@email.com"
+                            error={errors.email?.message}
+                            leftSection={<Mail size={16} />}
+                            required
+                        />
+                        <PasswordInput
+                            {...register('password')}
+                            label="Password"
+                            placeholder="Your password"
+                            leftSection={<Lock size={16} />}
+                            required
+                        />
 
-                    {error && (
-                        <div className="text-sm text-red-600 text-center">
-                            {error}
-                        </div>
-                    )}
+                        {error && <Text c="red">{error}</Text>}
 
-                    <div className="text-sm">
-                        <Link
+                        <Button
+                            variant="subtle"
+                            component={Link}
                             to="/forgot-password"
-                            className="font-semibold text-indigo-600 hover:text-indigo-500"
                         >
                             Forgot password?
-                        </Link>
-                    </div>
+                        </Button>
 
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-                    >
-                        {isLoading ? 'Signing in...' : 'Sign in'}
-                    </button>
+                        <Button type="submit" disabled={isLoading}>
+                            {isLoading ? 'Signing in...' : 'Sign in'}
+                        </Button>
+
+                        <Text mt="sm">
+                            Didn't receive verification email?{' '}
+                            <Anchor component={Link} to="/email-verification">
+                                Send again
+                            </Anchor>
+                        </Text>
+                    </Stack>
                 </form>
-
-                <div className="mt-6 text-center">
-                    <p className="text-sm text-gray-600">
-                        Don't have an account?{' '}
-                        <Link
-                            to="/register"
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
-                        >
-                            Sign up
-                        </Link>
-                    </p>
-                </div>
-                <div className="mt-3 text-center">
-                    <p className="text-sm text-gray-600">
-                        Didn't receive verification email?{' '}
-                        <Link
-                            to="/email-verification"
-                            className="font-medium text-indigo-600 hover:text-indigo-500"
-                        >
-                            Send again
-                        </Link>
-                    </p>
-                </div>
-            </div>
-        </div>
+            </Paper>
+        </Container>
     );
 };
 

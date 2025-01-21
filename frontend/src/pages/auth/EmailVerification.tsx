@@ -5,9 +5,18 @@ import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { emailVerification } from '../../store/slices/authSlice';
-import FormInput from '../../components/form/FormInput';
 import { useAppDispatch } from '../../hooks/redux';
 import { RootState } from '../../store';
+import {
+    Button,
+    Container,
+    Paper,
+    Stack,
+    Text,
+    TextInput,
+    Title,
+} from '@mantine/core';
+import { Mail } from 'lucide-react';
 
 export interface EmailVerificationForm {
     email: string;
@@ -43,67 +52,45 @@ const EmailVerification = () => {
 
     return (
         <>
-            <div className="max-w-md mx-auto mt-20">
-                <div className="bg-white pb-10 rounded-lg shadow-md">
-                    <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-2 lg:px-8 ">
-                        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                            <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-                                Send Email Verification
-                            </h2>
-                        </div>
+            <Container size="sm">
+                <Paper withBorder shadow="sm" radius="md" p="xl">
+                    <Title order={3} mb="md" ta="center">
+                        Email Verification
+                    </Title>
 
-                        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                            <form
-                                action="#"
-                                method="POST"
-                                className="space-y-6 text-left"
-                                onSubmit={handleSubmit(onSubmit)}
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <Stack>
+                            <Text size="sm" c="dimmed">
+                                Enter your email address and we'll send you
+                                instructions to verify your email.
+                            </Text>
+                            <TextInput
+                                {...register('email')}
+                                label="Email"
+                                placeholder="your@email.com"
+                                error={errors.email?.message}
+                                leftSection={<Mail size={16} />}
+                                required
+                            />
+
+                            {error && <Text c="red">{error}</Text>}
+                            {success && <Text c="green">Email Sent</Text>}
+
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? 'Sending email...' : 'Send email'}
+                            </Button>
+
+                            <Button
+                                variant="subtle"
+                                component={Link}
+                                to="/login"
                             >
-                                <FormInput
-                                    name={'email'}
-                                    type={'email'}
-                                    label={'Email address'}
-                                    register={register}
-                                    errors={errors}
-                                />
-
-                                <div className="text-sm">
-                                    Back to{' '}
-                                    <Link
-                                        to="/login"
-                                        className="font-semibold text-indigo-600 hover:text-indigo-500"
-                                    >
-                                        Sign In
-                                    </Link>
-                                </div>
-
-                                <div>
-                                    <button
-                                        disabled={isLoading}
-                                        type="submit"
-                                        className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                    >
-                                        {isLoading
-                                            ? 'Sending Email...'
-                                            : 'Send Email'}
-                                    </button>
-                                </div>
-
-                                {success && (
-                                    <div className="text-sm text-green-600 text-center">
-                                        Email Sent
-                                    </div>
-                                )}
-                                {error && (
-                                    <div className="text-sm text-red-600 text-center">
-                                        {error}
-                                    </div>
-                                )}
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                Back to login
+                            </Button>
+                        </Stack>
+                    </form>
+                </Paper>
+            </Container>
         </>
     );
 };

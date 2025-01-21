@@ -61,7 +61,7 @@ export interface PostFiltersType {
     page?: number;
     limit?: number;
     title?: string;
-    categories?: number[];
+    categories?: string[];
     status?: 'all' | 'active' | 'inactive';
     authorId?: number;
     sortBy?: 'rating' | 'createdAt';
