@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { resetPassword } from '../../store/slices/authSlice';
+import { resetPassword, resetStatus } from '../../store/slices/authSlice';
 import { RootState } from '../../store';
 import { useAppDispatch } from '../../hooks/redux';
 import {
@@ -53,6 +53,12 @@ const PasswordReset = () => {
             navigate('/');
         }
     }, [navigate, user]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(resetStatus());
+        };
+    }, [dispatch]);
 
     const onSubmit = (data: PasswordResetForm) => {
         if (token) {

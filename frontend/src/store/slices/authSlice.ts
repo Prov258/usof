@@ -96,7 +96,6 @@ export const resetPassword = createAsyncThunk<
         { token, ...data }: PasswordResetForm & { token: string },
         { rejectWithValue },
     ) => {
-        console.log(data);
         try {
             await api.post(`/auth/password-reset/${token}`, data);
         } catch (error: unknown) {
@@ -196,7 +195,9 @@ const authSlice = createSlice({
             localStorage.removeItem('user');
             localStorage.removeItem('token');
         },
-        clearSuccess: (state) => {
+        resetStatus: (state) => {
+            state.isLoading = false;
+            state.error = null;
             state.success = false;
         },
         updateCredentials: (state, { payload }) => {
@@ -323,6 +324,6 @@ const authSlice = createSlice({
     },
 });
 
-export const { clearUserState, clearSuccess, updateCredentials } =
+export const { clearUserState, resetStatus, updateCredentials } =
     authSlice.actions;
 export default authSlice.reducer;

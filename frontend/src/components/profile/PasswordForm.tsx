@@ -5,7 +5,7 @@ import { RootState } from '../../store';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { clearSuccess, updateProfile } from '../../store/slices/authSlice';
+import { resetStatus, updateProfile } from '../../store/slices/authSlice';
 import { useAppDispatch } from '../../hooks/redux';
 import { Button, Group, PasswordInput, Stack, Text } from '@mantine/core';
 import { Lock } from 'lucide-react';
@@ -47,10 +47,16 @@ const PasswordForm = () => {
 
     useEffect(() => {
         if (success) {
-            toast.success('Changed password successfully!');
-            dispatch(clearSuccess());
+            toast.success('Reseted password successfully!');
+            dispatch(resetStatus());
         }
     }, [dispatch, success]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(resetStatus());
+        };
+    }, [dispatch]);
 
     const onPasswordSubmit = async (data: PasswordForm) => {
         dispatch(

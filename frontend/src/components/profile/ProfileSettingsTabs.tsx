@@ -5,7 +5,7 @@ import AvatarForm from './AvatarForm';
 
 const ProfileSettingsTabs = () => {
     return (
-        <Tabs defaultValue="profile" radius="md">
+        <Tabs keepMounted={false} defaultValue="profile" radius="md">
             <Tabs.List mb="xl">
                 <Tabs.Tab value="profile">Profile Information</Tabs.Tab>
                 <Tabs.Tab value="password">Change Password</Tabs.Tab>

@@ -40,9 +40,9 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
                         size="sm"
                     />
                     <Group justify="space-between" style={{ flex: 1 }}>
-                        <Title order={3} component={Link} to="/">
-                            TellMe
-                        </Title>
+                        <Link to="/">
+                            <Title order={3}>TellMe</Title>
+                        </Link>
                         <Group ml="xl" gap={25} visibleFrom="sm">
                             {user ? (
                                 <>

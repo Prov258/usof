@@ -5,7 +5,7 @@ import { RootState } from '../../store';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { clearSuccess, updateProfile } from '../../store/slices/authSlice';
+import { resetStatus, updateProfile } from '../../store/slices/authSlice';
 import { useAppDispatch } from '../../hooks/redux';
 import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
 import { Mail, User } from 'lucide-react';
@@ -43,9 +43,15 @@ const ProfileForm = () => {
     useEffect(() => {
         if (success) {
             toast.success('Edited profile successfully!');
-            dispatch(clearSuccess());
+            dispatch(resetStatus());
         }
     }, [dispatch, success]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(resetStatus());
+        };
+    }, [dispatch]);
 
     const onProfileSubmit = async (data: ProfileForm) => {
         dispatch(updateProfile({ id: user?.id, ...data }));

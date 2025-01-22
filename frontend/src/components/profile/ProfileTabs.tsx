@@ -11,7 +11,7 @@ interface ProfileTabsProps {
 
 const ProfileTabs: React.FC<ProfileTabsProps> = ({ user }) => {
     return (
-        <Tabs defaultValue="posts" radius="md">
+        <Tabs keepMounted={false} defaultValue="posts" radius="md">
             <Tabs.List mb="lg">
                 <Tabs.Tab value="posts" leftSection={<FileText size={20} />}>
                     My Posts

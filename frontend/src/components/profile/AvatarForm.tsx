@@ -5,7 +5,7 @@ import { RootState } from '../../store';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { clearSuccess, uploadAvatar } from '../../store/slices/authSlice';
+import { resetStatus, uploadAvatar } from '../../store/slices/authSlice';
 import { useAppDispatch } from '../../hooks/redux';
 import { Button, FileInput, Group, Stack, Text } from '@mantine/core';
 
@@ -33,9 +33,15 @@ const AvatarForm = () => {
     useEffect(() => {
         if (success) {
             toast.success('Uploaded avatar successfully!');
-            dispatch(clearSuccess());
+            dispatch(resetStatus());
         }
     }, [dispatch, success]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(resetStatus());
+        };
+    }, [dispatch]);
 
     const onSubmit = async (data: AvatarForm) => {
         const formData = new FormData();

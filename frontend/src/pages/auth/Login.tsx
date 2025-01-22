@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../../store/slices/authSlice';
+import { login, resetStatus } from '../../store/slices/authSlice';
 import type { RootState } from '../../store';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,15 +44,21 @@ const Login = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
 
-    const onSubmit = async (data: LoginForm) => {
-        dispatch(login(data));
-    };
-
     useEffect(() => {
         if (user) {
             navigate('/');
         }
     }, [navigate, user]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(resetStatus());
+        };
+    }, [dispatch]);
+
+    const onSubmit = async (data: LoginForm) => {
+        dispatch(login(data));
+    };
 
     return (
         <Container size="sm">

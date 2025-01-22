@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { emailVerification } from '../../store/slices/authSlice';
+import { emailVerification, resetStatus } from '../../store/slices/authSlice';
 import { useAppDispatch } from '../../hooks/redux';
 import { RootState } from '../../store';
 import {
@@ -45,6 +45,12 @@ const EmailVerification = () => {
             navigate('/');
         }
     }, [navigate, user]);
+
+    useEffect(() => {
+        return () => {
+            dispatch(resetStatus());
+        };
+    }, [dispatch]);
 
     const onSubmit = (data: EmailVerificationForm) => {
         dispatch(emailVerification(data));
