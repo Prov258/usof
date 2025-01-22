@@ -12,15 +12,20 @@ import {
 import VoteButtons from '../form/VoteButtons';
 import { Link } from 'react-router-dom';
 import { url } from '../../utils/funcs';
-import { Clock, Edit } from 'lucide-react';
+import { Clock, Edit, Trash } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useDisclosure } from '@mantine/hooks';
+import DeletePostModal from './DeletePostModal';
 
 interface PostCardProps {
     post: Post;
-    editable: boolean;
+    isOwner: boolean;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, editable }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, isOwner }) => {
+    const [openedDeleteForm, { open: openDeleteForm, close: closeDeleteForm }] =
+        useDisclosure(false);
+
     return (
         <Card padding="lg" withBorder>
             <Group align="start" wrap="nowrap">
@@ -37,14 +42,23 @@ const PostCard: React.FC<PostCardProps> = ({ post, editable }) => {
                                 {post.title}
                             </Text>
                         </Link>
-                        {editable && (
-                            <ActionIcon
-                                variant="subtle"
-                                component={Link}
-                                to={`/posts/${post.id}/edit`}
-                            >
-                                <Edit size={20} />
-                            </ActionIcon>
+                        {isOwner && (
+                            <Group>
+                                <ActionIcon
+                                    variant="subtle"
+                                    component={Link}
+                                    to={`/posts/${post.id}/edit`}
+                                >
+                                    <Edit size={18} />
+                                </ActionIcon>
+                                <ActionIcon
+                                    variant="subtle"
+                                    color="red"
+                                    onClick={openDeleteForm}
+                                >
+                                    <Trash size={18} />
+                                </ActionIcon>
+                            </Group>
                         )}
                     </Group>
 
@@ -76,6 +90,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, editable }) => {
                     </Group>
                 </Stack>
             </Group>
+            <DeletePostModal
+                post={post}
+                opened={openedDeleteForm}
+                close={closeDeleteForm}
+            />
         </Card>
     );
 };

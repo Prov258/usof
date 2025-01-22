@@ -19,6 +19,10 @@ interface UpdatePostData extends CreatePostData {
     status?: 'active' | 'inactive';
 }
 
+interface DeletePostQuery {
+    id: number;
+}
+
 export const postsApi = createApi({
     reducerPath: 'posts',
     baseQuery: axiosBaseQuery(),
@@ -85,6 +89,15 @@ export const postsApi = createApi({
                 { type: 'Post', id },
             ],
         }),
+        deletePost: builder.mutation<Post, DeletePostQuery>({
+            query: ({ id }) => ({
+                url: `/posts/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: (_result, _error, { id }) => [
+                { type: 'Post', id },
+            ],
+        }),
         votePost: builder.mutation<Like, VoteQuery>({
             query: ({ id, type }) => ({
                 url: `/posts/${id}/like`,
@@ -104,5 +117,6 @@ export const {
     useGetPostByIdQuery,
     useCreatePostMutation,
     useUpdatePostMutation,
+    useDeletePostMutation,
     useVotePostMutation,
 } = postsApi;

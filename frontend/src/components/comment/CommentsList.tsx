@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useGetCommentsQuery } from '../../services/commentApi';
 import CommentCard from './CommentCard';
 import { Center, Loader, Pagination, Stack, Text, Title } from '@mantine/core';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 interface CommentsListProps {
     postId: number;
@@ -9,6 +11,7 @@ interface CommentsListProps {
 
 const CommentsList: React.FC<CommentsListProps> = ({ postId }) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const { user } = useSelector((state: RootState) => state.auth);
     const {
         data: commentsData,
         isLoading,
@@ -42,7 +45,11 @@ const CommentsList: React.FC<CommentsListProps> = ({ postId }) => {
             <Title order={3}>Comments ({commentsData?.meta.itemCount})</Title>
             <Stack gap={0}>
                 {commentsData?.data.map((comment) => (
-                    <CommentCard key={comment.id} comment={comment} />
+                    <CommentCard
+                        key={comment.id}
+                        comment={comment}
+                        isOwner={comment.author.id === user?.id}
+                    />
                 ))}
                 <Pagination
                     m="md"

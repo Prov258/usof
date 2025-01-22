@@ -40,7 +40,7 @@ const PostDetail = () => {
 
     return (
         <Container size="md">
-            <PostCard post={post} editable={false} />
+            <PostCard post={post} isOwner={post.author.id === user?.id} />
 
             <Paper mt="xl" p="xl" withBorder>
                 {user && (

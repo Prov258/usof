@@ -9,7 +9,7 @@ interface CommentFormProps {
     postId: number;
 }
 
-interface CommentFormData {
+export interface CommentFormData {
     content: string;
 }
 

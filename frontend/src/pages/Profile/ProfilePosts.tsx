@@ -25,11 +25,6 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         isLoading,
     } = useGetPostsQuery({ page: currentPage, filters });
 
-    const handleFilterChange = (newFilters: PostFiltersType) => {
-        setFilters(newFilters);
-        setCurrentPage(1);
-    };
-
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
     };
@@ -38,6 +33,14 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
         setFilters((prevFilters) => ({ ...prevFilters, title: value }));
         setCurrentPage(1);
     }, []);
+
+    const handleFilterChange = useCallback(
+        (newFilter: Partial<PostFiltersType>) => {
+            setFilters((prevFilters) => ({ ...prevFilters, ...newFilter }));
+            setCurrentPage(1);
+        },
+        [],
+    );
 
     return (
         <div>
@@ -51,7 +54,6 @@ const ProfilePosts: React.FC<ProfilePostsProps> = ({ userId }) => {
                 isLoading={isLoading}
                 isError={isError}
                 handlePageChange={handlePageChange}
-                editable={true}
             />
         </div>
     );

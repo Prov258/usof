@@ -36,7 +36,7 @@ const Home = () => {
     }, []);
 
     return (
-        <Container size="xl">
+        <Container size="lg">
             <Group justify="space-between" mb="lg">
                 <Title order={2}>Questions</Title>
                 <Button

@@ -13,6 +13,11 @@ interface CreateCommentQuery {
     content: string;
 }
 
+interface UpdateCommentQuery {
+    id: number;
+    content: string;
+}
+
 export const commentsApi = createApi({
     reducerPath: 'comments',
     baseQuery: axiosBaseQuery(),
@@ -40,6 +45,21 @@ export const commentsApi = createApi({
             }),
             invalidatesTags: [{ type: 'Comment', id: 'LIST' }],
         }),
+        updateComment: builder.mutation<Comment, UpdateCommentQuery>({
+            query: ({ id, ...data }) => ({
+                url: `/comments/${id}`,
+                method: 'PATCH',
+                body: data,
+            }),
+            invalidatesTags: [{ type: 'Comment', id: 'LIST' }],
+        }),
+        deleteComment: builder.mutation<Comment, { id: number }>({
+            query: ({ id }) => ({
+                url: `/comments/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: [{ type: 'Comment', id: 'LIST' }],
+        }),
         voteComment: builder.mutation<Like, VoteQuery>({
             query: ({ id, type }) => ({
                 url: `/comments/${id}/like`,
@@ -54,5 +74,7 @@ export const commentsApi = createApi({
 export const {
     useGetCommentsQuery,
     useCreateCommentMutation,
+    useUpdateCommentMutation,
+    useDeleteCommentMutation,
     useVoteCommentMutation,
 } = commentsApi;

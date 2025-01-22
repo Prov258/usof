@@ -2,6 +2,8 @@ import React from 'react';
 import { Paginated, Post } from '../../types';
 import { Center, Loader, Pagination, Stack, Text } from '@mantine/core';
 import PostCard from './PostCard';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 interface PostsListsProps {
     postsData: Paginated<Post>;
@@ -16,8 +18,9 @@ export const PostsList: React.FC<PostsListsProps> = ({
     isLoading,
     isError,
     handlePageChange,
-    editable = false,
 }) => {
+    const { user } = useSelector((state: RootState) => state.auth);
+
     if (isLoading) {
         return (
             <Center h="200">
@@ -40,7 +43,11 @@ export const PostsList: React.FC<PostsListsProps> = ({
         <>
             <Stack>
                 {postsData.data.map((post: Post) => (
-                    <PostCard key={post.id} post={post} editable={editable} />
+                    <PostCard
+                        key={post.id}
+                        post={post}
+                        isOwner={post.author.id === user?.id}
+                    />
                 ))}
                 <Pagination
                     m="md"
