@@ -95,8 +95,8 @@ export class AuthController {
     @ApiVerifyEmail()
     @Public()
     @HttpCode(HttpStatus.NO_CONTENT)
-    @Get('verify-email/:token')
-    verifyEmail(@Param('token') token: string): Promise<string> {
+    @Post('verify-email/:token')
+    verifyEmail(@Param('token') token: string): Promise<void> {
         return this.authService.verifyEmail(token);
     }
 

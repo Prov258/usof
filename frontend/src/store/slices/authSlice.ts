@@ -131,6 +131,24 @@ export const emailVerification = createAsyncThunk<
     },
 );
 
+export const verifyEmail = createAsyncThunk<
+    void,
+    { token: string },
+    { rejectValue: string }
+>('auth/verifyEmail', async (data: { token: string }, { rejectWithValue }) => {
+    try {
+        await api.post(`/auth/verify-email/${data.token}`);
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            return rejectWithValue(error.response?.data.message);
+        } else {
+            return rejectWithValue(
+                'An unexpected error occurred. Please try again.',
+            );
+        }
+    }
+});
+
 export const updateProfile = createAsyncThunk<
     User,
     Partial<User>,
@@ -290,6 +308,19 @@ const authSlice = createSlice({
             .addCase(emailVerification.rejected, (state, { payload }) => {
                 state.isLoading = false;
                 state.error = payload || 'Failed to send email verification';
+            })
+            .addCase(verifyEmail.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+                state.success = false;
+            })
+            .addCase(verifyEmail.fulfilled, (state) => {
+                state.isLoading = false;
+                state.success = true;
+            })
+            .addCase(verifyEmail.rejected, (state, { payload }) => {
+                state.isLoading = false;
+                state.error = payload || 'Failed to verify email';
             })
             .addCase(updateProfile.pending, (state) => {
                 state.isLoading = true;

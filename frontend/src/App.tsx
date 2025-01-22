@@ -13,6 +13,7 @@ import EmailVerification from './pages/auth/EmailVerification';
 import Layout from './components/layout/Layout';
 import { Toaster } from 'react-hot-toast';
 import NotFoundPage from './pages/NotFoundPage';
+import VerifyEmail from './pages/auth/VerifyEmail';
 
 const App = () => {
     return (
@@ -33,6 +34,10 @@ const App = () => {
                     <Route
                         path="/email-verification"
                         element={<EmailVerification />}
+                    />
+                    <Route
+                        path="/verify-email/:token"
+                        element={<VerifyEmail />}
                     />
                     <Route path="/posts/:id" element={<PostDetail />} />
                     <Route

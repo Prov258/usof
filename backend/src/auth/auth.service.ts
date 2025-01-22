@@ -101,14 +101,14 @@ export class AuthService {
             data: otpData,
         });
 
-        const appUrl = this.configService.get<string>('APP_URL');
+        const clientUrl = this.configService.get<string>('CLIENT_APP_URL');
 
         await this.mailService.sendMail({
             to: user.email,
             subject: 'Password Reset',
             template: 'password-reset',
             context: {
-                resetLink: `http://localhost:5173/password-reset/${otp.token}`,
+                resetLink: `${clientUrl}/password-reset/${otp.token}`,
             },
         });
     }
@@ -170,19 +170,19 @@ export class AuthService {
             data: otpData,
         });
 
-        const appUrl = this.configService.get<string>('APP_URL');
+        const clientUrl = this.configService.get<string>('CLIENT_APP_URL');
 
         await this.mailService.sendMail({
             to: user.email,
             subject: 'Email Verification',
             template: 'email-verification',
             context: {
-                verifyLink: `${appUrl}/api/auth/verify-email/${otp.token}`,
+                verifyLink: `${clientUrl}/verify-email/${otp.token}`,
             },
         });
     }
 
-    async verifyEmail(token: string): Promise<string> {
+    async verifyEmail(token: string): Promise<void> {
         const otp = await this.prisma.otp.findFirst({
             where: {
                 token,
@@ -211,8 +211,6 @@ export class AuthService {
                 id: otp.id,
             },
         });
-
-        return 'Verified';
     }
 
     async refreshToken(user: User, res: Response): Promise<LoginResponseDto> {
