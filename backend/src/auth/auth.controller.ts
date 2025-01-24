@@ -72,7 +72,7 @@ export class AuthController {
     @ApiRefresh()
     @Public()
     @UseGuards(JwtRefreshGuard)
-    @Get('refresh')
+    @Post('refresh')
     refresh(
         @CurrentUser() user: User,
         @Response({ passthrough: true }) res,

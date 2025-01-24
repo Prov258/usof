@@ -32,7 +32,6 @@ export const ApiLogin = () =>
         ApiBody({ type: LoginDto }),
         ApiOkResponse({ type: LoginResponseDto }),
         ApiBadRequestResponse({ description: "User doesn't exist" }),
-        ApiUnauthorizedResponse({ description: 'Invalid credentials' }),
     );
 
 export const ApiLogout = () =>

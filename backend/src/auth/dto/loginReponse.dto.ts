@@ -9,5 +9,8 @@ export class LoginResponseDto {
     })
     accessToken: string;
 
+    @ApiProperty({
+        type: UserEntity,
+    })
     user: UserEntity;
 }

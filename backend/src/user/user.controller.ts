@@ -32,8 +32,8 @@ import {
     ApiUserUpdate,
     ApiUserUploadAvatar,
 } from './decorators/api-user.decorator';
+import { Public } from 'src/shared/decorators/public.decorator';
 
-@ApiBearerAuth()
 @Controller('users')
 export class UserController {
     constructor(private readonly userService: UserService) {}
@@ -47,6 +47,7 @@ export class UserController {
     }
 
     @ApiUserFindAll()
+    @Public()
     @Get()
     findAll(
         @Query() paginationOptions: PaginationOptionsDto,
@@ -55,6 +56,7 @@ export class UserController {
     }
 
     @ApiUserFindOne()
+    @Public()
     @Get(':id')
     findOne(@Param('id', ParseIntPipe) id: number): Promise<UserEntity> {
         return this.userService.findOne(id);

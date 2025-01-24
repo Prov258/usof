@@ -2,6 +2,7 @@ import { applyDecorators } from '@nestjs/common';
 import { CategoryEntity } from '../entities/category.entity';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiNotFoundResponse,
@@ -41,6 +42,7 @@ export const ApiCategoryGetPosts = () =>
 
 export const ApiCategoryCreate = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Create category' }),
         ApiBody({ type: CreateCategoryDto }),
         ApiCreatedResponse({ type: CategoryEntity }),
@@ -51,6 +53,7 @@ export const ApiCategoryCreate = () =>
 
 export const ApiCategoryUpdate = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Update category' }),
         ApiParam({
             name: 'id',
@@ -66,6 +69,7 @@ export const ApiCategoryUpdate = () =>
 
 export const ApiCategoryRemove = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Delete category' }),
         ApiParam({
             name: 'id',

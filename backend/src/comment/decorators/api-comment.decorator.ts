@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiForbiddenResponse,
@@ -37,6 +38,7 @@ export const ApiCommentGetLikes = () =>
 
 export const ApiCommentCreateLike = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Like comment' }),
         ApiParam({
             name: 'id',
@@ -52,6 +54,7 @@ export const ApiCommentCreateLike = () =>
 
 export const ApiCommentUpdate = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Update comment' }),
         ApiParam({
             name: 'id',
@@ -65,6 +68,7 @@ export const ApiCommentUpdate = () =>
 
 export const ApiCommentRemove = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Delete comment' }),
         ApiParam({
             name: 'id',
@@ -77,6 +81,7 @@ export const ApiCommentRemove = () =>
 
 export const ApiCommentRemoveLike = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Remove like from comment' }),
         ApiParam({
             name: 'id',

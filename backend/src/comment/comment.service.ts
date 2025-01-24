@@ -13,7 +13,7 @@ import { CreateLikeDto } from 'src/like/dto/create-like.dto';
 export class CommentService {
     constructor(private prisma: PrismaService) {}
 
-    async findOne(id: number) {
+    async findOne(id: number): Promise<Comment> {
         return await this.prisma.comment.findUnique({
             where: {
                 id,

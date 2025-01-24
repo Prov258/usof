@@ -19,7 +19,14 @@ import { Public } from 'src/shared/decorators/public.decorator';
 import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.dto';
 import { CreateCommentDto } from 'src/comment/dto/create-comment.dto';
 import { CreateLikeDto } from 'src/like/dto/create-like.dto';
-import { User } from '@prisma/client';
+import {
+    User,
+    Post as PostType,
+    Comment,
+    Category,
+    Like,
+    Favorite,
+} from '@prisma/client';
 import { CurrentUser } from 'src/shared/decorators/user.decorator';
 import {
     ApiPostCreate,
@@ -36,6 +43,7 @@ import {
     ApiPostRemoveLike,
     ApiPostUpdate,
 } from './decorators/api-post.decorator';
+import { Paginated } from 'src/shared/pagination/paginated';
 
 @Controller('posts')
 export class PostController {
@@ -49,7 +57,7 @@ export class PostController {
         @Query() sortingOptions: SortingOptionsDto,
         @Query() filteringOptions: FilteringOptionsDto,
         @Query() paginationOptions: PaginationOptionsDto,
-    ) {
+    ): Promise<Paginated<PostType>> {
         return this.postService.findAll(
             paginationOptions,
             sortingOptions,
@@ -72,7 +80,7 @@ export class PostController {
         @CurrentUser() user: User,
         @Param('id') id: number,
         @Query() paginationOptions: PaginationOptionsDto,
-    ) {
+    ): Promise<Paginated<Comment>> {
         return this.postService.findComments(id, paginationOptions, user);
     }
 
@@ -82,19 +90,21 @@ export class PostController {
         @Param('id') id: number,
         @CurrentUser() user: User,
         @Body() createCommentDto: CreateCommentDto,
-    ) {
+    ): Promise<Comment> {
         return this.postService.createPostComment(id, user, createCommentDto);
     }
 
     @ApiPostGetCategories()
+    @Public()
     @Get(':id/categories')
-    getPostCategories(@Param('id') id: number) {
+    getPostCategories(@Param('id') id: number): Promise<Category[]> {
         return this.postService.getPostCategories(id);
     }
 
     @ApiPostGetLikes()
+    @Public()
     @Get(':id/like')
-    getPostLikes(@Param('id') id: number) {
+    getPostLikes(@Param('id') id: number): Promise<Like[]> {
         return this.postService.getPostLikes(id);
     }
 
@@ -103,7 +113,7 @@ export class PostController {
     createPost(
         @CurrentUser() user: User,
         @Body() createPostDto: CreatePostDto,
-    ) {
+    ): Promise<PostType> {
         return this.postService.create(user, createPostDto);
     }
 
@@ -113,19 +123,25 @@ export class PostController {
         @CurrentUser() user: User,
         @Param('id') id: number,
         @Body() createLikeDto: CreateLikeDto,
-    ) {
+    ): Promise<Like> {
         return this.postService.createPostLike(id, user, createLikeDto);
     }
 
     @ApiPostCreateFavorite()
     @Post(':id/favorite')
-    createPostFavorite(@CurrentUser() user: User, @Param('id') id: number) {
+    createPostFavorite(
+        @CurrentUser() user: User,
+        @Param('id') id: number,
+    ): Promise<Favorite> {
         return this.postService.createPostFavorite(id, user);
     }
 
     @ApiPostRemoveFavorite()
     @Delete(':id/favorite')
-    removePostFavorite(@CurrentUser() user: User, @Param('id') id: number) {
+    removePostFavorite(
+        @CurrentUser() user: User,
+        @Param('id') id: number,
+    ): Promise<Favorite> {
         return this.postService.removePostFavorite(id, user);
     }
 
@@ -135,19 +151,25 @@ export class PostController {
         @CurrentUser() user: User,
         @Param('id') id: number,
         @Body() updatePostDto: UpdatePostDto,
-    ) {
+    ): Promise<PostType> {
         return this.postService.update(id, user, updatePostDto);
     }
 
     @ApiPostRemove()
     @Delete(':id')
-    remove(@CurrentUser() user: User, @Param('id') id: number) {
+    remove(
+        @CurrentUser() user: User,
+        @Param('id') id: number,
+    ): Promise<PostType> {
         return this.postService.remove(id, user);
     }
 
     @ApiPostRemoveLike()
     @Delete(':id/like')
-    removePostLike(@CurrentUser() user: User, @Param('id') id: number) {
+    removePostLike(
+        @CurrentUser() user: User,
+        @Param('id') id: number,
+    ): Promise<Like> {
         return this.postService.removePostLike(id, user);
     }
 }

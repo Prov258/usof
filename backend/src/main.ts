@@ -3,18 +3,16 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    const configService = app.get<ConfigService>(ConfigService);
+    const PORT = configService.get<number>('PORT');
 
     app.use(cookieParser());
     app.enableCors({
-        origin: (origin, callback) => {
-            if (!origin) {
-                return callback(null, true);
-            }
-            callback(null, true);
-        },
+        origin: true,
         credentials: true,
         methods: ['GET', 'POST', 'PATCH', 'DELETE'],
         allowedHeaders: ['Content-Type', 'Authorization'],
@@ -30,9 +28,7 @@ async function bootstrap() {
 
     const config = new DocumentBuilder()
         .setTitle('Usof API')
-        .setDescription(
-            'usof is a backend Q&A application. It provides an API for user authentication, posting, commenting and likes.',
-        )
+        .setDescription('Q&A application api.')
         .setVersion('1.0')
         .setLicense('MIT', 'https://opensource.org/licenses/MIT')
         .addServer(process.env.APP_URL, 'Local development server')
@@ -45,6 +41,6 @@ async function bootstrap() {
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api/docs', app, documentFactory);
 
-    await app.listen(3000);
+    await app.listen(PORT);
 }
 bootstrap();

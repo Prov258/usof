@@ -22,7 +22,6 @@ import { FavoriteEntity } from '../entities/favorite.entity';
 
 export const ApiPostFindAll = () =>
     applyDecorators(
-        ApiBearerAuth(),
         ApiOperation({ summary: 'Get all posts' }),
         ApiPaginatedResponse(PostEntity, 'Paginated list of posts'),
     );
@@ -65,7 +64,6 @@ export const ApiPostCreateComment = () =>
 
 export const ApiPostGetCategories = () =>
     applyDecorators(
-        ApiBearerAuth(),
         ApiOperation({ summary: 'Get all categories for post' }),
         ApiParam({
             name: 'id',
@@ -79,7 +77,6 @@ export const ApiPostGetCategories = () =>
 
 export const ApiPostGetLikes = () =>
     applyDecorators(
-        ApiBearerAuth(),
         ApiOperation({ summary: 'Get all likes for post' }),
         ApiParam({
             name: 'id',

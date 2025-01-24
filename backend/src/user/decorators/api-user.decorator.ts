@@ -1,6 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
+    ApiBearerAuth,
     ApiBody,
     ApiCreatedResponse,
     ApiForbiddenResponse,
@@ -15,6 +16,7 @@ import { ApiPaginatedResponse } from 'src/shared/pagination/api-paginated-respon
 
 export const ApiUserCreate = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Create user' }),
         ApiBody({ type: CreateUserDto }),
         ApiCreatedResponse({ type: UserEntity }),
@@ -39,6 +41,7 @@ export const ApiUserFindOne = () =>
 
 export const ApiUserUploadAvatar = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Upload user avatar' }),
         ApiBody({ type: FileUploadDto }),
         ApiCreatedResponse({ type: UserEntity }),
@@ -50,6 +53,7 @@ export const ApiUserUploadAvatar = () =>
 
 export const ApiUserUpdate = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Update user' }),
         ApiParam({
             name: 'id',
@@ -63,6 +67,7 @@ export const ApiUserUpdate = () =>
 
 export const ApiUserRemove = () =>
     applyDecorators(
+        ApiBearerAuth(),
         ApiOperation({ summary: 'Delete user' }),
         ApiParam({
             name: 'id',
