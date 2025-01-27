@@ -27,7 +27,7 @@ async function bootstrap() {
     );
 
     const config = new DocumentBuilder()
-        .setTitle('Usof API')
+        .setTitle('TellMe API')
         .setDescription('Q&A application api.')
         .setVersion('1.0')
         .setLicense('MIT', 'https://opensource.org/licenses/MIT')

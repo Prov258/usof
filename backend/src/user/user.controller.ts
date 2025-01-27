@@ -13,14 +13,13 @@ import {
     Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, UpdateUserDto, FileUploadDto } from './dto';
+import { CreateUserDto, UpdateUserDto } from './dto';
 import { Roles } from 'src/shared/decorators/roles.decorator';
 import { Role, User } from '@prisma/client';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { UserEntity } from './entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/config/multer.config';
-import { ApiBearerAuth } from '@nestjs/swagger';
 import { PaginationOptionsDto } from 'src/shared/pagination/pagination-options.dto';
 import { Paginated } from 'src/shared/pagination/paginated';
 import { CurrentUser } from 'src/shared/decorators/user.decorator';

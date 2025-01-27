@@ -17,7 +17,10 @@ import { CreateCategoryDto } from '../dto';
 export const ApiCategoryFindAll = () =>
     applyDecorators(
         ApiOperation({ summary: 'Get all categories' }),
-        ApiPaginatedResponse(CategoryEntity, 'Paginated list of categories'),
+        ApiPaginatedResponse<CategoryEntity>(
+            CategoryEntity,
+            'Paginated list of categories',
+        ),
     );
 
 export const ApiCategoryFindOne = () =>
@@ -37,7 +40,7 @@ export const ApiCategoryGetPosts = () =>
             name: 'id',
             description: 'category id',
         }),
-        ApiPaginatedResponse(PostEntity, 'Paginated list of posts'),
+        ApiPaginatedResponse<PostEntity>(PostEntity, 'Paginated list of posts'),
     );
 
 export const ApiCategoryCreate = () =>

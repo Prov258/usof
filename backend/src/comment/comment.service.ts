@@ -64,7 +64,7 @@ export class CommentService {
         }
 
         const increment = createLikeDto.type === LikeType.LIKE ? 1 : -1;
-        const [_, newLike] = await this.prisma.$transaction([
+        const [, newLike] = await this.prisma.$transaction([
             this.prisma.comment.update({
                 where: {
                     id: commentId,
@@ -157,7 +157,7 @@ export class CommentService {
         }
 
         const increment = like.type === LikeType.LIKE ? -1 : 1;
-        const [_, deletedLike] = await this.prisma.$transaction([
+        const [, deletedLike] = await this.prisma.$transaction([
             this.prisma.comment.update({
                 where: {
                     id: commentId,

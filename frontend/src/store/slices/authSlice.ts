@@ -151,7 +151,7 @@ export const verifyEmail = createAsyncThunk<
 
 export const updateProfile = createAsyncThunk<
     User,
-    Partial<User>,
+    Partial<User & { password: string }>,
     { rejectValue: string }
 >('auth/updateProfile', async (data: Partial<User>, { rejectWithValue }) => {
     try {

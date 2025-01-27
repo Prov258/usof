@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
@@ -71,7 +71,9 @@ const EditPost = () => {
     }, [isSuccess]);
 
     const onSubmit = async (data: EditPostForm) => {
-        await updatePost({ id: currentPost.id, ...data });
+        if (currentPost) {
+            await updatePost({ id: currentPost.id, ...data });
+        }
     };
 
     if (isLoading) {

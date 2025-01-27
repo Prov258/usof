@@ -6,11 +6,10 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 
 interface PostsListsProps {
-    postsData: Paginated<Post>;
+    postsData?: Paginated<Post>;
     isLoading: boolean;
     isError: boolean;
     handlePageChange: (page: number) => void;
-    editable: boolean;
 }
 
 export const PostsList: React.FC<PostsListsProps> = ({
@@ -29,7 +28,7 @@ export const PostsList: React.FC<PostsListsProps> = ({
         );
     }
 
-    if (isError) {
+    if (isError || !postsData) {
         return (
             <Center h="200">
                 <Text c="red" size="xl" fw={700}>

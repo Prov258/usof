@@ -304,7 +304,7 @@ export class PostService {
         }
 
         const increment = createLikeDto.type === LikeType.LIKE ? 1 : -1;
-        const [_, newLike] = await this.prisma.$transaction([
+        const [, newLike] = await this.prisma.$transaction([
             this.prisma.post.update({
                 where: {
                     id: postId,
@@ -441,7 +441,7 @@ export class PostService {
         }
 
         const increment = like.type === LikeType.LIKE ? -1 : 1;
-        const [_, deletedLike] = await this.prisma.$transaction([
+        const [, deletedLike] = await this.prisma.$transaction([
             this.prisma.post.update({
                 where: {
                     id: postId,

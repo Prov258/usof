@@ -26,7 +26,7 @@ export const ApiUserCreate = () =>
 export const ApiUserFindAll = () =>
     applyDecorators(
         ApiOperation({ summary: 'Get all users' }),
-        ApiPaginatedResponse(UserEntity, 'Paginated list of users'),
+        ApiPaginatedResponse<UserEntity>(UserEntity, 'Paginated list of users'),
     );
 
 export const ApiUserFindOne = () =>

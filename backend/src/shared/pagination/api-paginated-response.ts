@@ -1,16 +1,15 @@
-import { applyDecorators } from '@nestjs/common';
+import { applyDecorators, Type } from '@nestjs/common';
 import {
     ApiExtraModels,
     ApiOkResponse,
     ApiQuery,
-    ApiResponse,
     getSchemaPath,
 } from '@nestjs/swagger';
 import { Paginated } from './paginated';
 import { PaginatedMetadata } from './paginated-metadata';
 
 export function ApiPaginatedResponse<T>(
-    itemType: Function,
+    itemType: Type<T>,
     description = 'Paginated response',
 ) {
     return applyDecorators(

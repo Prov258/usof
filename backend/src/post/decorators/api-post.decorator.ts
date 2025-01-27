@@ -23,7 +23,7 @@ import { FavoriteEntity } from '../entities/favorite.entity';
 export const ApiPostFindAll = () =>
     applyDecorators(
         ApiOperation({ summary: 'Get all posts' }),
-        ApiPaginatedResponse(PostEntity, 'Paginated list of posts'),
+        ApiPaginatedResponse<PostEntity>(PostEntity, 'Paginated list of posts'),
     );
 
 export const ApiPostFindOne = () =>
@@ -43,7 +43,7 @@ export const ApiPostGetComments = () =>
             name: 'id',
             description: 'post id',
         }),
-        ApiPaginatedResponse(
+        ApiPaginatedResponse<CommentEntity>(
             CommentEntity,
             'Paginated comments for post by id',
         ),
@@ -69,7 +69,7 @@ export const ApiPostGetCategories = () =>
             name: 'id',
             description: 'post id',
         }),
-        ApiPaginatedResponse(
+        ApiPaginatedResponse<CategoryEntity>(
             CategoryEntity,
             'Paginated categories for post by id',
         ),
