@@ -18,11 +18,12 @@ import {
     Group,
     Loader,
     Paper,
+    Stack,
     Text,
-    Textarea,
     TextInput,
     Title,
 } from '@mantine/core';
+import Editor from '../../components/post/Editor';
 
 interface EditPostForm {
     title: string;
@@ -102,40 +103,40 @@ const EditPost = () => {
                 </Title>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <TextInput
-                        {...register('title')}
-                        label="Title"
-                        placeholder="What's your question?"
-                        error={errors.title?.message}
-                        required
-                    />
-                    <Textarea
-                        {...register('content')}
-                        error={errors.content?.message}
-                        withAsterisk
-                        label="Content"
-                        placeholder="Describe your question in detail..."
-                        autosize
-                        minRows={5}
-                        maxRows={10}
-                        required
-                    />
+                    <Stack>
+                        <TextInput
+                            {...register('title')}
+                            label="Title"
+                            placeholder="What's your question?"
+                            error={errors.title?.message}
+                            required
+                        />
 
-                    <CategorySelect
-                        selectedCategories={currentPost.categories}
-                        onChange={(value) =>
-                            setValue('categories', value.categories)
-                        }
-                        error={errors.categories?.message}
-                    />
+                        <Editor
+                            label="Content"
+                            editable={true}
+                            onChange={(value) => setValue('content', value)}
+                            error={errors.content?.message}
+                            placeholder="Describe your question in detail..."
+                            content={currentPost?.content}
+                        />
 
-                    {isError && <Text c="red">Error occurred</Text>}
+                        <CategorySelect
+                            selectedCategories={currentPost.categories}
+                            onChange={(value) =>
+                                setValue('categories', value.categories)
+                            }
+                            error={errors.categories?.message}
+                        />
 
-                    <Group justify="flex-end">
-                        <Button type="submit" disabled={isUpdating} mt="md">
-                            {isUpdating ? 'Saving...' : 'Save'}
-                        </Button>
-                    </Group>
+                        {isError && <Text c="red">Error occurred</Text>}
+
+                        <Group justify="flex-end">
+                            <Button type="submit" disabled={isUpdating} mt="md">
+                                {isUpdating ? 'Saving...' : 'Save'}
+                            </Button>
+                        </Group>
+                    </Stack>
                 </form>
             </Paper>
         </Container>

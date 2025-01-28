@@ -16,6 +16,7 @@ import { Clock, Edit, Trash } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useDisclosure } from '@mantine/hooks';
 import DeletePostModal from './DeletePostModal';
+import Editor from './Editor';
 
 interface PostCardProps {
     post: Post;
@@ -62,7 +63,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isOwner }) => {
                         )}
                     </Group>
 
-                    <Text c="dark">{post.content}</Text>
+                    <Editor editable={false} content={post.content} />
 
                     <Group gap="xs">
                         {post.categories.map((category) => (

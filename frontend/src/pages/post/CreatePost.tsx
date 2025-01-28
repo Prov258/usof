@@ -11,11 +11,11 @@ import {
     Paper,
     Stack,
     Text,
-    Textarea,
     TextInput,
     Title,
 } from '@mantine/core';
 import CategorySelect from '../../components/form/CategorySelect';
+import Editor from '../../components/post/Editor';
 
 interface CreatePostForm {
     title: string;
@@ -69,16 +69,13 @@ const CreatePost = () => {
                             error={errors.title?.message}
                             required
                         />
-                        <Textarea
-                            {...register('content')}
-                            error={errors.content?.message}
-                            withAsterisk
+
+                        <Editor
                             label="Content"
+                            editable={true}
+                            onChange={(value) => setValue('content', value)}
+                            error={errors.content?.message}
                             placeholder="Describe your question in detail..."
-                            autosize
-                            minRows={5}
-                            maxRows={10}
-                            required
                         />
 
                         <CategorySelect
@@ -87,9 +84,7 @@ const CreatePost = () => {
                             }
                             error={errors.categories?.message}
                         />
-
                         {isError && <Text c="red">Error occurred</Text>}
-
                         <Group justify="flex-end">
                             <Button type="submit" disabled={isLoading} mt="md">
                                 {isLoading ? 'Posting...' : 'Post Question'}

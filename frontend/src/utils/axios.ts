@@ -33,10 +33,14 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const response = await axios.post(`/auth/refresh`, {
-                    baseURL: config.apiUrl,
-                    withCredentials: true,
-                });
+                const response = await axios.post(
+                    `/auth/refresh`,
+                    {},
+                    {
+                        baseURL: config.apiUrl,
+                        withCredentials: true,
+                    },
+                );
                 const { accessToken, user } = response.data;
 
                 store.dispatch(updateCredentials({ token: accessToken, user }));
